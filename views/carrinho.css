@@ -1,0 +1,226 @@
+body {
+    background-color: #f4f4f4;
+}
+
+/* --- BLOCO DE CORREÇÃO DE FONTE (VERSÃO FINAL) --- */
+
+/* 1. Reseta o tamanho da fonte para a área do carrinho e do modal */
+#cart-container,
+#checkout-modal-content {
+    font-size: 16px !important;
+}
+
+/* 2. Força INPUTS e BOTÕES dentro do modal a herdarem o tamanho correto */
+#checkout-modal-content input,
+#checkout-modal-content button {
+    font-size: inherit !important; /* 'inherit' significa "use o tamanho do pai" (16px) */
+    font-family: inherit !important; /* Bônus: Garante que a fonte seja a mesma do resto do modal */
+}
+
+/* --- FIM DO BLOCO DE CORREÇÃO --- */
+
+#cart-container {
+    margin-top: 40px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+    font-size: 16px; 
+    gap: 15px;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-item-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.cart-item-details {
+    flex-grow: 1;
+}
+
+.cart-item-details h4 {
+    margin: 0;
+    font-size: 1.1em; /* Agora 1.1em será baseado em 16px, não 2px */
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quantity-controls button {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+.item-price, .item-subtotal {
+    font-weight: bold;
+    width: 120px;
+    text-align: right;
+    color: #000;
+}
+
+.remove-item-btn {
+    background: none;
+    border: none;
+    color: red;
+    cursor: pointer;
+    font-size: 1.5em;
+}
+
+#cart-summary {
+    margin-top: 20px;
+    text-align: right;
+}
+
+#cart-total {
+    font-size: 7em;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+#checkout-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1em;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* --- ESTILOS PARA O MODAL DE CHECKOUT --- */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none; /* Escondido por padrão */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-overlay.show {
+    display: flex; /* Mostra o modal */
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 600px;
+    width: 90%;
+    position: relative;
+    font-size: 16px; /* Garante que a fonte dentro do modal seja legível */
+}
+
+/* --- ESTILOS PARA AS ETAPAS DO CHECKOUT --- */
+
+.checkout-step {
+    display: none; /* Esconde todas as etapas por padrão */
+}
+
+.checkout-step.active {
+    display: block; /* Mostra apenas a etapa ativa */
+}
+
+.checkout-step h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.payment-option {
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.payment-option.selected {
+    border-color: #007bff;
+    background-color: #f0f8ff;
+}
+
+.step-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.step-navigation .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.step-navigation .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.step-navigation .btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+/* --- ESTILOS PARA A TELA FINAL --- */
+.confirmation-screen {
+    text-align: center;
+}
+
+.confirmation-screen h3 {
+    color: #28a745;
+}
+
+.confirmation-screen p {
+    margin: 20px 0;
+}
+

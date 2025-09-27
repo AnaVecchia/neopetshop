@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="cadastro.css">
+    <title>Cadastro - Pelos e Patas</title>
+</head>
+<body>
+    <div class="cadastro-container">
+        <div class="top-left-image">
+            <img
+            src="../public/images/Pelos_Patas.png"
+            alt="Imagem Top Left"
+            class="top-left-image-content"
+            />
+        </div>
+        <div class="logo-container">
+            <img
+            src="../public/images/cadastro.webp"
+            alt="Logo"
+            class="logo-content"
+            />
+        </div>
+        
+        <form class="cadastro-form" id="cadastro-form">
+            <input type="email" id="email" placeholder="Digite seu email" />
+            <input type="username" id="username" placeholder="Digite seu usuário" />
+            <input type="password" id="password" placeholder="Digite sua senha" />
+            <input type="phone" id="phone" placeholder="Digite seu telefone para contato" />
+            
+            <button type="submit">Cadastrar</button>
+            
+            <p>
+                Já possui uma conta? <a href="index.html">Login</a>
+            </p>
+        </form>
+    </div>
+    <script src="/public/scripts/cadastro.js"></script>
+</body>
+</html>

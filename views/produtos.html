@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="produtos.css">
+    <script src="../public/scripts/produtos.js"></script>
+    <title>Produtos - Pelos e Patas</title>
+</head>
+
+<body>
+    <header id="header">
+        <div class="container">
+            <div class="header-area">
+                <Link to="/principal">
+                <img src="../public/images/Pelos_Patas.png" width="200px" alt="Logo PetFood" />
+                </Link>
+                <nav>
+                    <div class="menu-mobile">
+                        <img src="../public/images/images/menu.svg" alt="Menu" />
+                    </div>
+                    <li class="cart-mobile" onClick=toggleCart()>
+                        🛒
+                    </li>
+                    <ul class="menu-area">
+                        <li class="menu--item">
+                            <a href="/views/home.html">Início</a>
+                        </li>
+                        <li class="menu--item">
+                            <a href="/views/home.html">Perfil</a>
+                        </li>
+                        <li class="menu--item">
+                            <a href="/views/home.html">Minhas Compras</a>
+                        </li>
+                        <li class="menu--item">
+                            <a href="carrinho.html">🛒</a>
+                        </li>
+                </nav>
+                </ul>
+                </nav>
+            </div>
+            <div>
+                <ul class="menu-mobile-area">
+                    <li class="menu-mobile--item">
+                        <a href="/home.html">INÍCIO</a>
+                    </li>
+                    <li class="menu-mobile--item">
+                        <Link to="#about">SOBRE</Link>
+                    </li>
+                    <li class="menu-mobile--item">
+                        <Link to="/produtos">Loja</Link>
+                    </li>
+                    <li class="menu-mobile--item">
+                        <Link to="#footer">Contato</Link>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+    <section id="banner">
+        <div class="container">
+            <div class="banner-area">
+                <div class="banner--desc">
+                    <div class="banner--desc--text">
+                        <h1>Tudo o que seu pet precisa a Pelos e Patas tem!</h1>
+                        <p class="text-light">
+                            Seja para comprar um petisco ou uma roupinha estilosa... basta
+                            você selecionar o produto, escolher como deseja pagar e pronto!
+                        </p>
+                        <a href="#produtos" class="button">
+                            Conferir produtos
+                        </a>
+                    </div>
+                </div>
+                <div class="banner--image">
+                    <img src="../public/images/dog.png" alt="Imagem de um cachorro" />
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="produtos" class="products">
+        <div class="container">
+            <h2>Nossos Produtos</h2>
+            <div class="products-area"></div>
+        </div>
+    </section>
+    <div id="product-modal" class="modal-overlay">
+        <div class="modal-content">
+        </div>
+    </div>
+
+</body>
+
+</html>
+</body>
+
+</html>
