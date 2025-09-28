@@ -36,18 +36,16 @@ Este projeto foi construído utilizando as seguintes tecnologias:
 
   - **Frontend:**
 
-      - 
-      - 
+      -  HTML, CSS, JS
       -  (ES6+, Async/Await, Fetch API)
 
   - **Backend:**
 
-      - 
-      - 
+      - JS (Node.js + Express Server)
 
   - **Banco de Dados:**
 
-      - 
+      - MySQL Server
 
 -----
 
