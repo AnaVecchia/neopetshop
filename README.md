@@ -174,6 +174,6 @@ Antes de começar, você vai precisar ter instalado em sua máquina:
 
 **[Ana Julia Della Vecchia]**
 
-  - Github: [@AnaVecchia](https://www.google.com/search?q=https://github.com/AnaVecchia)
+  - Github: [@AnaVecchia](https://github.com/AnaVecchia)
 
 -----
