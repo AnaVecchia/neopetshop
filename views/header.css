@@ -9,68 +9,64 @@
     --background-color: #fafafa;
 }
 
-.btn-admin {
-    display: inline-block;
-    padding: 10px 15px;
-    background-color: #0393FF;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-family: sans-serif;
-    margin-top: 20px;
-}
+/* --- BASE E RESET --- */
 
-.btn-admin:hover {
-    background-color: #ff9a03;
+/* ADICIONADO: Base de fonte moderna e previsível */
+html {
+    font-size: 16px; /* Agora, 1rem = 16px */
+    scroll-behavior: smooth;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-size: 2px;
     font-family: "Poppins", sans-serif;
-    scroll-behavior: smooth;
+    /* REMOVIDO: A regra problemática de font-size: 2px; foi removida daqui */
 }
 
 body {
     overflow-x: hidden;
     margin: 0;
+    color: var(--text-dark-color); /* Boa prática: cor de texto padrão */
 }
 
+
+/* --- TIPOGRAFIA (VALORES REM AJUSTADOS) --- */
+
 h1 {
-    font-size: 18rem;
+    font-size: 2.25rem; /* Era 18rem (36px) */
     font-weight: 700;
     color: var(--text-light-color);
 }
 
 h2 {
-    font-size: 16rem;
+    font-size: 2rem; /* Era 16rem (32px) */
     font-weight: 700;
     color: var(--text-dark-color);
 }
 
 h3 {
-    font-size: 9rem;
+    font-size: 1.125rem; /* Era 9rem (18px) */
     font-weight: 600;
     color: var(--orange-color);
     text-transform: uppercase;
 }
 
 h4 {
-    font-size: 9rem;
+    font-size: 1.125rem; /* Era 9rem (18px) */
     font-weight: 500;
     color: var(--orange-color);
 }
 
 h5 {
-    font-size: 8rem;
+    font-size: 1rem; /* Era 8rem (16px) */
     font-weight: 400;
     color: #494949;
 }
 
 a {
-    font-size: 9rem;
+    font-size: 1.125rem; /* Era 9rem (18px) */
     font-weight: 700;
     color: var(--text-light-color);
     text-decoration: none;
@@ -78,13 +74,12 @@ a {
 }
 
 p {
-    font-size: 10rem;
+    font-size: 1.25rem; /* Era 10rem (20px) */
     font-weight: 400;
-    color: var(--text-dark-color);
 }
 
 span {
-    font-size: 7rem;
+    font-size: 0.875rem; /* Era 7rem (14px) */
     color: rgb(255, 255, 255, 0.6);
     margin-top: 30px;
 }
@@ -95,11 +90,11 @@ span a {
 }
 
 .small-text {
-    font-size: 7rem;
+    font-size: 0.875rem; /* Era 7rem (14px) */
 }
 
 .medium-text {
-    font-size: 12rem;
+    font-size: 1.5rem; /* Era 12rem (24px) */
 }
 
 .bold-text {
@@ -107,7 +102,33 @@ span a {
 }
 
 li {
-    font-size: 10rem;
+    font-size: 1.25rem; /* Era 10rem (20px) */
+}
+
+i {
+    font-size: 1.75rem; /* Era 14rem (28px) */
+    color: white;
+    cursor: pointer;
+    transition: all 0.5s;
+}
+
+
+/* --- O RESTO DO SEU CSS CONTINUA IGUAL --- */
+
+.btn-admin {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #0393FF;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-family: sans-serif;
+    margin-top: 20px;
+    font-size: 1rem; /* Ajuste para o botão admin */
+}
+
+.btn-admin:hover {
+    background-color: #ff9a03;
 }
 
 .text-light {
@@ -140,6 +161,9 @@ li {
     text-transform: uppercase;
     transition: all 0.8;
 }
+
+/* ... cole o resto do seu CSS (do .button:hover em diante) aqui sem alterações ... */
+/* ... ele vai funcionar perfeitamente com a nova base ... */
 
 .button:hover {
     background-color: #fbaf3e;
@@ -659,6 +683,35 @@ footer {
     color: var(--text-dark-color);
 }
 
+/* --- ESTILO DO BOTÃO FLUTUANTE DO WHATSAPP --- */
+
+.whatsapp-button {
+    position: fixed; /* Fica fixo na tela */
+    bottom: 25px;    /* Distância da parte de baixo */
+    right: 25px;     /* Distância da parte da direita */
+    width: 60px;
+    height: 60px;
+    background-color: #25D366; /* Cor oficial do WhatsApp */
+    color: #FFF;
+    border-radius: 50%; /* Deixa o botão redondo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.25);
+    z-index: 1000; /* Garante que ele fique acima de outros elementos */
+    transition: transform 0.3s ease;
+}
+
+.whatsapp-button svg {
+    width: 28px;
+    height: 28px;
+}
+
+.whatsapp-button:hover {
+    transform: scale(1.1); /* Efeito de zoom ao passar o mouse */
+    background-color: #128C7E; /* Cor mais escura no hover */
+}
+
 /* Responsivo */
 
 @media (max-width: 1366px) {
@@ -900,3 +953,4 @@ footer {
         font-size: 9rem;
     }
 }
+

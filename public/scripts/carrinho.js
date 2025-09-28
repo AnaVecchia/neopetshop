@@ -1,8 +1,8 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // --- SELETORES DOS ELEMENTOS DO CARRINHO ---
     const cartItemsContainer = document.getElementById('cart-items');
     const cartTotalElement = document.getElementById('cart-total');
-    
+
     // --- SELETORES DOS ELEMENTOS DO MODAL ---
     const checkoutBtn = document.getElementById('checkout-btn');
     const checkoutModal = document.getElementById('checkout-modal');
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderCart() {
         cart = JSON.parse(localStorage.getItem('cart')) || [];
-        cartItemsContainer.innerHTML = ''; 
+        cartItemsContainer.innerHTML = '';
         let total = 0;
 
         if (cart.length === 0) {
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cart = cart.filter(i => i.id !== productId);
         saveCartAndRerender();
     }
-    
+
     function saveCartAndRerender() {
         localStorage.setItem('cart', JSON.stringify(cart));
         renderCart();
@@ -90,7 +90,9 @@ document.addEventListener('DOMContentLoaded', function() {
         checkoutModal.classList.remove('show');
     }
 
-    function navigateToStep(step) {
+    // No seu carrinho.js, substitua a função navigateToStep por esta:
+    async function navigateToStep(step) {
+        // Validação do formulário de endereço
         if (step === 2) {
             const requiredFields = ['cep', 'rua', 'numero', 'bairro', 'cidade', 'estado'];
             const isValid = requiredFields.every(id => document.getElementById(id).value.trim() !== '');
@@ -99,10 +101,41 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
         }
-        currentStep = step;
-        renderStep(currentStep);
-    }
 
+        // Lógica para finalizar o pedido
+        if (step === 3) {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const cart = JSON.parse(localStorage.getItem('cart'));
+
+            if (!user || !cart) {
+                alert('Erro: Usuário não logado ou carrinho vazio.');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3030/pedidos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: user.id, cart: cart })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Falha ao registrar o pedido.');
+                }
+
+                const result = await response.json();
+                console.log(result.message); // Ex: "Pedido realizado com sucesso!"
+
+            } catch (error) {
+                alert(`Ocorreu um erro: ${error.message}`);
+                return; // Impede de avançar para a tela de confirmação se houver erro
+            }
+        }
+
+        currentStep = step;
+        renderStep(currentStep); // Avança para a próxima etapa (seja 2 ou 3)
+    }
     // AQUI ESTÁ A MUDANÇA PRINCIPAL
     function renderStep(step) {
         if (step === 1) { // Etapa 1: Endereço
@@ -150,10 +183,10 @@ document.addEventListener('DOMContentLoaded', function() {
             renderCart();
         }
     }
-    
+
     // --- EVENT LISTENERS ---
 
-    cartItemsContainer.addEventListener('click', function(e) {
+    cartItemsContainer.addEventListener('click', function (e) {
         const target = e.target;
         if (target.classList.contains('quantity-change')) {
             const productId = parseInt(target.dataset.id);
@@ -173,8 +206,8 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.warn('Botão de checkout com id="checkout-btn" não foi encontrado.');
     }
-    
-    modalContent.addEventListener('click', function(e) {
+
+    modalContent.addEventListener('click', function (e) {
         const target = e.target;
         if (target.id === 'close-modal-btn' || target.id === 'close-modal-final-btn') {
             hideModal();

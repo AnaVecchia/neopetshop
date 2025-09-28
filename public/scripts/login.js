@@ -14,7 +14,11 @@ document.getElementById('login-form').addEventListener('submit', function(event)
     .then(data => {
         if (data.success) {
             alert(data.message);
-            localStorage.setItem('user', JSON.stringify(data.user)); // Armazena dados do usuário
+            localStorage.setItem('user', JSON.stringify(data.user));
+
+            // limpa carrinho
+            localStorage.removeItem('cart'); 
+
             window.location.href = 'home.html';
         } else {
             alert(data.message);

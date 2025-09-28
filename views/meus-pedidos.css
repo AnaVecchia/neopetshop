@@ -1,0 +1,40 @@
+.order-card {
+    background-color: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.order-header h3 {
+    margin: 0;
+}
+
+.order-status {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-weight: bold;
+    color: white;
+}
+
+.status-aguardando {
+    background-color: #ff9a03; /* Laranja */
+}
+
+.order-details p {
+    margin: 5px 0;
+}
+
+#voltar{
+    color: black;
+}

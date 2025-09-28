@@ -2,19 +2,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
 /* --- BLOCO DE CORREÇÃO DE FONTE (VERSÃO FINAL) --- */
 
-/* 1. Reseta o tamanho da fonte para a área do carrinho e do modal */
-#cart-container,
-#checkout-modal-content {
-    font-size: 16px !important;
-}
-
-/* 2. Força INPUTS e BOTÕES dentro do modal a herdarem o tamanho correto */
-#checkout-modal-content input,
-#checkout-modal-content button {
-    font-size: inherit !important; /* 'inherit' significa "use o tamanho do pai" (16px) */
-    font-family: inherit !important; /* Bônus: Garante que a fonte seja a mesma do resto do modal */
-}
-
 /* --- FIM DO BLOCO DE CORREÇÃO --- */
 :root {
   --orange-color: #ff9a03;
@@ -35,6 +22,19 @@
 
 body {
   overflow-x: hidden;
+}
+
+label, input, textarea{
+  font-size: 10rem;
+}
+
+label {
+  display: block;
+  width: 130px;
+}
+
+button{
+  font-size: 5rem;
 }
 
 h1 {
@@ -995,4 +995,20 @@ footer {
 
 .add-to-cart-btn:hover {
     background-color: #fbaf3e;
+}
+
+.edit-btn {
+    background-color: #007bff; /* Azul */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 8rem;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.edit-btn:hover {
+    background-color: #0056b3;
 }

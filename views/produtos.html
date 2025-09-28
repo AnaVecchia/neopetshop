@@ -28,10 +28,10 @@
                             <a href="/views/home.html">Início</a>
                         </li>
                         <li class="menu--item">
-                            <a href="/views/home.html">Perfil</a>
+                            <a href="/views/perfil.html">Perfil</a>
                         </li>
                         <li class="menu--item">
-                            <a href="/views/home.html">Minhas Compras</a>
+                            <a href="/views/meus-pedidos.html">Minhas Compras</a>
                         </li>
                         <li class="menu--item">
                             <a href="carrinho.html">🛒</a>
@@ -89,10 +89,36 @@
         <div class="modal-content">
         </div>
     </div>
+    <div id="edit-product-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Editar Produto</h3>
+            <form id="edit-product-form">
+                <input type="hidden" id="edit-product-id">
 
-</body>
+                <div class="form-group">
+                    <label for="edit-title">Título do Produto</label>
+                    <input type="text" id="edit-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-description">Descrição</label>
+                    <textarea id="edit-description" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-price">Preço (R$)</label>
+                    <input type="number" id="edit-price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-image_url">URL da Imagem</label>
+                    <input type="url" id="edit-image_url">
+                </div>
 
-</html>
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary" id="cancel-edit-btn">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 
 </html>
