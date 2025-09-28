@@ -2,11 +2,7 @@
 
 Uma plataforma de e-commerce completa para o seu pet shop, construída com JavaScript puro, Node.js e MySQL.
 
-\<div align="center"\>
-
-\<img src="![https](https://i.postimg.cc/d3VNZKX1/Screenshot-2025-09-28-110232.png)" alt="Screenshot da tela principal do projeto" width="700"/\>
-
-\</div\>
+![https](https://i.postimg.cc/d3VNZKX1/Screenshot-2025-09-28-110232.png)
 
 -----
 
