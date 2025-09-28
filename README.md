@@ -66,14 +66,13 @@ Antes de começar, você vai precisar ter instalado em sua máquina:
 1.  **Clone o repositório:**
 
     ```bash
-    git clone https://SEU_LINK_DO_REPOSITORIO_AQUI.git
+    git clone https://github.com/AnaVecchia/neopetshop.git
     ```
 
 2.  **Instale as dependências do Backend:**
 
     ```bash
-    cd pasta-do-backend
-    npm install
+    npm i
     ```
 
     Isso instalará o `express`, `mysql2`, `bcrypt`, `node-fetch`, etc.
@@ -137,8 +136,8 @@ Antes de começar, você vai precisar ter instalado em sua máquina:
     ```env
     DB_HOST=localhost
     DB_USER=root
-    DB_PASSWORD=sua_senha_aqui
-    DB_NAME=nome_do_seu_banco
+    DB_PASSWORD=root
+    DB_NAME=petshop
     ```
 
 ### Executando a Aplicação
@@ -146,9 +145,7 @@ Antes de começar, você vai precisar ter instalado em sua máquina:
 1.  **Inicie o servidor Backend:**
 
     ```bash
-    npm start 
-    # ou
-    node server.js
+    npm start
     ```
 
 2.  **Abra o Frontend:**
@@ -177,6 +174,6 @@ Antes de começar, você vai precisar ter instalado em sua máquina:
 
 **[Ana Julia Della Vecchia]**
 
-  - Github: [@seu-usuario](https://www.google.com/search?q=https://github.com/AnaVecchia)
+  - Github: [@AnaVecchia](https://www.google.com/search?q=https://github.com/AnaVecchia)
 
 -----
