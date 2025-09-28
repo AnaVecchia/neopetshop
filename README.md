@@ -1,4 +1,4 @@
-# 🐾 Pelos & Patas E-commerce
+# Pelos & Patas E-commerce
 
 Uma plataforma de e-commerce completa para o seu pet shop, construída com JavaScript puro, Node.js e MySQL.
 
@@ -6,7 +6,7 @@ Uma plataforma de e-commerce completa para o seu pet shop, construída com JavaS
 
 -----
 
-## ✨ Funcionalidades
+## Funcionalidades
 
 O projeto conta com um sistema robusto de funcionalidades tanto para clientes quanto para administradores, incluindo:
 
