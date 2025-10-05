@@ -191,4 +191,4 @@ Siga os passos abaixo para executar o projeto localmente.
 
 Desenvolvido por **Ana Julia Della Vecchia**.
 
-  - **Github:** `[github.com/AnaVecchia]`
+  - **Github:** [github.com/AnaVecchia]
