@@ -4,7 +4,6 @@
 
   - **Curso:** Análise e Desenvolvimento de Sistemas
   - **Autora:** Ana Julia Della Vecchia
-  - **Data:** Outubro de 2025
 
 -----
 
@@ -191,4 +190,4 @@ Siga os passos abaixo para executar o projeto localmente.
 
 Desenvolvido por **Ana Julia Della Vecchia**.
 
-  - **Github:** [github.com/AnaVecchia]
+  [Github](github.com/AnaVecchia) 
