@@ -1,9 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // --- SELETORES DOS ELEMENTOS DO CARRINHO ---
     const cartItemsContainer = document.getElementById('cart-items');
     const cartTotalElement = document.getElementById('cart-total');
-
-    // --- SELETORES DOS ELEMENTOS DO MODAL ---
     const checkoutBtn = document.getElementById('checkout-btn');
     const checkoutModal = document.getElementById('checkout-modal');
     const modalContent = document.getElementById('checkout-modal-content');
@@ -11,7 +8,19 @@ document.addEventListener('DOMContentLoaded', function () {
     let cart = [];
     let currentStep = 1;
 
-    // --- CÓDIGO DO CARRINHO ---
+    async function fetchWithAuth(url, options = {}) {
+        const token = localStorage.getItem('token');
+        const headers = {
+            'Content-Type': 'application/json',
+            ...options.headers,
+        };
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        return fetch(url, { ...options, headers });
+    }
 
     function renderCart() {
         cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -78,8 +87,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
     }
 
-    // --- FUNÇÕES DO MODAL DE CHECKOUT (COM TAGS AJUSTADAS) ---
-
     function showModal() {
         currentStep = 1;
         renderStep(currentStep);
@@ -90,9 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
         checkoutModal.classList.remove('show');
     }
 
-    // No seu carrinho.js, substitua a função navigateToStep por esta:
     async function navigateToStep(step) {
-        // Validação do formulário de endereço
         if (step === 2) {
             const requiredFields = ['cep', 'rua', 'numero', 'bairro', 'cidade', 'estado'];
             const isValid = requiredFields.every(id => document.getElementById(id).value.trim() !== '');
@@ -102,43 +107,39 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Lógica para finalizar o pedido
         if (step === 3) {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const cart = JSON.parse(localStorage.getItem('cart'));
+            const token = localStorage.getItem('token');
+            const localCart = JSON.parse(localStorage.getItem('cart'));
 
-            if (!user || !cart) {
-                alert('Erro: Usuário não logado ou carrinho vazio.');
+            if (!token || !localCart || localCart.length === 0) {
+                alert('Erro: Você precisa estar logado e seu carrinho não pode estar vazio.');
                 return;
             }
 
             try {
-                const response = await fetch('http://localhost:3030/pedidos', {
+                const response = await fetchWithAuth('http://localhost:3030/api/orders', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: user.id, cart: cart })
+                    body: JSON.stringify({ cart: localCart })
                 });
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Falha ao registrar o pedido.');
-                }
-
                 const result = await response.json();
-                console.log(result.message); // Ex: "Pedido realizado com sucesso!"
-
+                if (!response.ok) {
+                    throw new Error(result.message || 'Falha ao registrar o pedido.');
+                }
+                
+                console.log(result.message);
             } catch (error) {
-                alert(`Ocorreu um erro: ${error.message}`);
-                return; // Impede de avançar para a tela de confirmação se houver erro
+                alert(`Ocorreu um erro ao finalizar o pedido: ${error.message}`);
+                return;
             }
         }
 
         currentStep = step;
-        renderStep(currentStep); // Avança para a próxima etapa (seja 2 ou 3)
+        renderStep(currentStep);
     }
-    // AQUI ESTÁ A MUDANÇA PRINCIPAL
+
     function renderStep(step) {
-        if (step === 1) { // Etapa 1: Endereço
+        if (step === 1) {
             modalContent.innerHTML = `
                 <div id="step1" class="checkout-step active">
                     <h2>1. Endereço de Entrega</h2>
@@ -156,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                 </div>
             `;
-        } else if (step === 2) { // Etapa 2: Pagamento
+        } else if (step === 2) {
             modalContent.innerHTML = `
                 <div id="step2" class="checkout-step active">
                     <h2>2. Método de Pagamento</h2>
@@ -171,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                 </div>
             `;
-        } else if (step === 3) { // Etapa 3: Confirmação
+        } else if (step === 3) {
             modalContent.innerHTML = `
                 <div id="step3" class="checkout-step active confirmation-screen">
                     <h2 style="color: #28a745;">✅ Pedido Realizado!</h2>
@@ -184,17 +185,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // --- EVENT LISTENERS ---
-
     cartItemsContainer.addEventListener('click', function (e) {
         const target = e.target;
-        if (target.classList.contains('quantity-change')) {
-            const productId = parseInt(target.dataset.id);
-            const change = parseInt(target.dataset.change);
+        if (target.closest('.quantity-change')) {
+            const button = target.closest('.quantity-change');
+            const productId = parseInt(button.dataset.id);
+            const change = parseInt(button.dataset.change);
             updateQuantity(productId, change);
         }
-        if (target.classList.contains('remove-item-btn')) {
-            const productId = parseInt(target.dataset.id);
+        if (target.closest('.remove-item-btn')) {
+            const button = target.closest('.remove-item-btn');
+            const productId = parseInt(button.dataset.id);
             if (confirm('Tem certeza que deseja remover este item?')) {
                 removeItem(productId);
             }
@@ -203,8 +204,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (checkoutBtn) {
         checkoutBtn.addEventListener('click', showModal);
-    } else {
-        console.warn('Botão de checkout com id="checkout-btn" não foi encontrado.');
     }
 
     modalContent.addEventListener('click', function (e) {

@@ -1,26 +1,39 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // --- SELETORES DE ELEMENTOS ---
+document.addEventListener('DOMContentLoaded', function () {
     const container = document.querySelector('.products-area');
     const detailsModal = document.getElementById('product-modal');
-    const editModal = document.getElementById('edit-product-modal'); // NOVO: Seletor do modal de edição
-    const editForm = document.getElementById('edit-product-form');   // NOVO: Seletor do formulário de edição
+    const editModal = document.getElementById('edit-product-modal');
+    const editForm = document.getElementById('edit-product-form');
 
     if (!container || !detailsModal || !editModal || !editForm) {
-        console.error('Erro: Um ou mais elementos essenciais (products-area, product-modal, edit-product-modal, edit-product-form) não foram encontrados no HTML.');
+        console.error('Um ou mais elementos DOM essenciais não foram encontrados.');
         return;
     }
 
     let allProducts = [];
 
-    // --- FUNÇÃO DE VERIFICAÇÃO DE ADMIN (NOVO) ---
+    async function fetchWithAuth(url, options = {}) {
+        const token = localStorage.getItem('token');
+        const headers = {
+            'Content-Type': 'application/json',
+            ...options.headers,
+        };
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        return fetch(url, { ...options, headers });
+    }
+
     function isAdmin() {
         const userDataString = localStorage.getItem('user');
         if (!userDataString) return false;
-        const user = JSON.parse(userDataString);
-        return user && user.email && user.email.includes('admin');
+        try {
+            const user = JSON.parse(userDataString);
+            return user && user.role === 'admin';
+        } catch (e) {
+            return false;
+        }
     }
 
-    // --- FUNÇÕES DE INICIALIZAÇÃO E BUSCA DE DADOS ---
     async function init() {
         try {
             const products = await fetchProducts();
@@ -28,20 +41,21 @@ document.addEventListener('DOMContentLoaded', function() {
             renderProducts(allProducts);
         } catch (error) {
             console.error('Erro ao inicializar:', error);
-            container.innerHTML = '<p style="color: red;">Falha ao carregar produtos.</p>';
+            container.innerHTML = `<p style="color: red;">${error.message}</p>`;
         }
     }
 
     async function fetchProducts() {
-        const response = await fetch('http://localhost:3030/produtos');
-        if (!response.ok) throw new Error('A resposta da rede não foi bem-sucedida.');
+        const response = await fetch('http://localhost:3030/api/products');
+        if (!response.ok) {
+            throw new Error('Falha ao buscar os produtos da API.');
+        }
         return await response.json();
     }
 
-    // --- RENDERIZAÇÃO DE PRODUTOS (MODIFICADO) ---
     function renderProducts(products) {
         container.innerHTML = '';
-        const userIsAdmin = isAdmin(); // Verifica se o usuário é admin
+        const userIsAdmin = isAdmin();
 
         products.forEach(product => {
             const card = document.createElement('div');
@@ -51,7 +65,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const imageUrl = product.image_url || 'https://via.placeholder.com/165x165?text=Sem+Imagem';
             const formattedPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price);
 
-            // ORGANIZAR AQUI NO CSS
             const adminButtonHTML = userIsAdmin ?
                 `<button class="edit-btn" data-product-id="${product.id}">Editar ✏️</button>` : '';
 
@@ -61,12 +74,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="products-card--info">
                     <h4>${product.title}</h4>
-                    <p class="small-text">${product.description.substring(0, 50)}</p>
+                    <p class="small-text">${product.description.substring(0, 50)}...</p>
                 </div>
                 <div class="products-card--footer">
                     <h4 class="orange-text bold-text">${formattedPrice}</h4>
                     <div class="button-group">
-                        ${adminButtonHTML} <button class="add-to-cart-btn" data-product-id="${product.id}">Adicionar 🛒</button>
+                        ${adminButtonHTML}
+                        <button class="add-to-cart-btn" data-product-id="${product.id}">Adicionar 🛒</button>
                     </div>
                 </div>
             `;
@@ -74,7 +88,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- LÓGICA DO CARRINHO (SEM MUDANÇAS) ---
     function addToCart(productId) {
         const productToAdd = allProducts.find(p => p.id === parseInt(productId));
         if (!productToAdd) return;
@@ -89,16 +102,12 @@ document.addEventListener('DOMContentLoaded', function() {
         alert(`"${productToAdd.title}" foi adicionado ao carrinho!`);
     }
 
-    // --- LÓGICA DOS MODAIS (VISUALIZAÇÃO E EDIÇÃO) ---
-
-    // Modal de Visualização (seu código original, funcionando)
     function showDetailsModal(productId) {
         const product = allProducts.find(p => p.id === parseInt(productId));
         if (!product) return;
         const imageUrl = product.image_url || 'https://via.placeholder.com/300x300?text=Sem+Imagem';
         const formattedPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price);
         
-        // MODIFICADO: Usa as tags que você gosta para manter o design
         detailsModal.innerHTML = `
             <div class="modal-content">
                 <span class="close-modal">&times;</span>
@@ -118,7 +127,6 @@ document.addEventListener('DOMContentLoaded', function() {
         detailsModal.classList.remove('show');
     }
 
-    // NOVO: Modal de Edição (com as fontes/tags corrigidas)
     function showEditModal(productId) {
         const productToEdit = allProducts.find(p => p.id === parseInt(productId));
         if (!productToEdit) return;
@@ -136,44 +144,39 @@ document.addEventListener('DOMContentLoaded', function() {
         editModal.classList.remove('show');
     }
 
-
-    // --- GERENCIAMENTO DE EVENTOS (MODIFICADO PARA FUNCIONAR TUDO) ---
-
-    // Listener para a área de produtos
-    container.addEventListener('click', function(event) {
+    container.addEventListener('click', function (event) {
         const target = event.target;
         const card = target.closest('.products-card');
         if (!card) return;
 
         const productId = card.dataset.productId;
+        const addToCartBtn = target.closest('.add-to-cart-btn');
+        const editBtn = target.closest('.edit-btn');
 
-        if (target.classList.contains('add-to-cart-btn')) {
-            // Ação 1: Clique no botão ADICIONAR
+        if (addToCartBtn) {
+            event.stopPropagation();
             addToCart(productId);
-        } else if (target.classList.contains('edit-btn')) {
-            // Ação 2: Clique no botão EDITAR
+        } else if (editBtn) {
+            event.stopPropagation();
             showEditModal(productId);
         } else {
-            // Ação 3: Clique em qualquer outra parte do card para VISUALIZAR
             showDetailsModal(productId);
         }
     });
 
-    // Listener para o modal de VISUALIZAÇÃO
-    detailsModal.addEventListener('click', function(event) {
+    detailsModal.addEventListener('click', function (event) {
         const target = event.target;
         if (target.classList.contains('close-modal') || target === detailsModal) {
             hideDetailsModal();
         }
         if (target.closest('.add-to-cart-btn-modal')) {
-           const productId = target.closest('.add-to-cart-btn-modal').dataset.productId;
-           addToCart(productId);
-           hideDetailsModal();
+            const productId = target.closest('.add-to-cart-btn-modal').dataset.productId;
+            addToCart(productId);
+            hideDetailsModal();
         }
     });
 
-    // NOVO: Listener para o formulário de EDIÇÃO
-    editForm.addEventListener('submit', function(event) {
+    editForm.addEventListener('submit', async function (event) {
         event.preventDefault();
         const id = document.getElementById('edit-product-id').value;
         const updatedProduct = {
@@ -183,27 +186,27 @@ document.addEventListener('DOMContentLoaded', function() {
             image_url: document.getElementById('edit-image_url').value
         };
 
-        fetch(`http://localhost:3030/produto/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedProduct)
-        })
-        .then(response => response.json())
-        .then(data => {
+        try {
+            const response = await fetchWithAuth(`http://localhost:3030/api/products/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(updatedProduct)
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message || 'Falha ao atualizar o produto.');
+            }
+            
             alert(data.message);
             hideEditModal();
-            init(); // Re-carrega a lista de produtos
-        })
-        .catch(error => {
+            init();
+        } catch (error) {
             console.error('Erro ao atualizar produto:', error);
-            alert('Falha ao atualizar o produto.');
-        });
+            alert(error.message);
+        }
     });
     
-    // NOVO: Listener para o botão de cancelar do modal de edição
     document.getElementById('cancel-edit-btn').addEventListener('click', hideEditModal);
 
-
-    // Inicia todo o processo
     init();
 });

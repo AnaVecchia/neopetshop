@@ -1,27 +1,26 @@
-document.getElementById('login-form').addEventListener('submit', function(event) {
+document.getElementById('login-form').addEventListener('submit', function (event) {
     event.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    fetch('http://localhost:3030/login', {
+    fetch('http://localhost:3030/api/auth/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ email, password })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.message);
-            localStorage.setItem('user', JSON.stringify(data.user));
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
 
-            // limpa carrinho
-            localStorage.removeItem('cart'); 
-
-            window.location.href = 'home.html';
-        } else {
-            alert(data.message);
-        }
-    });
+                localStorage.removeItem('cart');
+                window.location.href = 'home.html';
+            } else {
+                alert(data.message);
+            }
+        });
 });

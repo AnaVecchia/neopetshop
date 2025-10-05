@@ -1,9 +1,9 @@
 // Aguarda o conteúdo da página ser totalmente carregado para garantir que os elementos HTML existam
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // 1. Pega os dados do usuário salvos no localStorage
     const userDataString = localStorage.getItem('user');
     console.log(userDataString);
-    
+
 
     // Verifica se existe algum dado de usuário salvo
     if (userDataString) {
@@ -20,8 +20,8 @@ document.addEventListener('DOMContentLoaded', function() {
             adminButton.textContent = 'Cadastrar Produtos'; // O texto do botão
 
             // Adiciona uma classe para que você possa estilizar o botão com CSS, se quiser
-            adminButton.classList.add('btn', 'btn-admin'); 
-            
+            adminButton.classList.add('btn', 'btn-admin');
+
             // 5. Adiciona o botão à página
             // Encontra um local na sua página para adicionar o botão. 
             // Por exemplo, em um container com o id="admin-controls".
@@ -35,5 +35,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Opcional: Redireciona para a página de login se não houver usuário logado
         console.log('Nenhum usuário logado. Redirecionando para o login.');
         // window.location.href = 'login.html'; // Descomente esta linha se quiser forçar o redirecionamento
+    }
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'index.html';
     }
 });

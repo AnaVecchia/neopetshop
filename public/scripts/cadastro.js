@@ -34,7 +34,7 @@ document.getElementById('cadastro-form').addEventListener('submit', async functi
         };
 
         // --- ETAPA 4: Envia tudo para o seu backend ---
-        const response = await fetch('http://localhost:3030/cadastro', {
+        const response = await fetch('http://localhost:3030/api/auth/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
