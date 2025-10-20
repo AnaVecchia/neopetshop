@@ -1,9 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     const ordersListContainer = document.getElementById('orders-list');
-    const token = localStorage.getItem('token');
 
     // Função auxiliar para realizar requisições autenticadas
     async function fetchWithAuth(url, options = {}) {
+        // CORREÇÃO: O token é lido do localStorage a cada chamada
+        const token = localStorage.getItem('token');
+
         const headers = {
             'Content-Type': 'application/json',
             ...options.headers,
@@ -18,7 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Função principal para buscar e renderizar os pedidos
     async function loadOrders() {
-        if (!token) {
+        // A verificação do token agora é feita dentro do fetchWithAuth,
+        // mas podemos manter uma verificação inicial para feedback rápido.
+        if (!localStorage.getItem('token')) {
             ordersListContainer.innerHTML = '<h2>Acesso negado. Você precisa estar logado para ver seus pedidos.</h2>';
             return;
         }
@@ -26,19 +30,20 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetchWithAuth('http://localhost:3030/api/orders/user');
             
+            const data = await response.json();
+
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || `Erro ${response.status}`);
+                // Lança um erro com a mensagem vinda da API
+                throw new Error(data.message || `Erro ${response.status}`);
             }
 
-            const orders = await response.json();
+            const orders = data;
 
             if (orders.length === 0) {
                 ordersListContainer.innerHTML = '<p>Você ainda não fez nenhum pedido.</p>';
                 return;
             }
 
-            // Limpa o container antes de adicionar os novos elementos
             ordersListContainer.innerHTML = ''; 
 
             orders.forEach(order => {
@@ -76,6 +81,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Executa a função ao carregar a página
     loadOrders();
 });

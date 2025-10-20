@@ -107,4 +107,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     populateProfileData();
+
+    // --- NOVO CÓDIGO PARA O MENU MOBILE RESPONSIVO ---
+    const menuToggle = document.getElementById('menu-toggle');
+    const mainMenu = document.getElementById('main-menu');
+
+    if (menuToggle && mainMenu) {
+        menuToggle.addEventListener('click', () => {
+            mainMenu.classList.toggle('menu-open');
+        });
+    }
 });

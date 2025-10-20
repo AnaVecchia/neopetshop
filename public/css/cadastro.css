@@ -1,38 +1,44 @@
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: #fff;
+}
+
 .cadastro-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  min-height: 100vh; 
   background-color: #3A7AAA;
-}
-
-body{
-  margin: 0;
+  padding: 20px; 
+  box-sizing: border-box; 
 }
 
 .cadastro-form {
-  width: 300px;
-  border: 1px solid #3A7AAA;
+  width: 100%; 
+  max-width: 450px; 
   padding: 20px;
   border-radius: 20px;
   background-color: #3A4955;
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-sizing: border-box;
 }
 
 input {
-  width: 90%;
+  width: 100%; 
   padding: 12px;
   margin-bottom: 16px;
   border: 1px solid #ccc;
   border-radius: 20px;
   font-size: 16px;
+  box-sizing: border-box;
 }
 
 button {
-  width: 98%;
+  width: 100%; 
   padding: 12px;
   background-color: #ff9a03;
   color: #000;
@@ -40,21 +46,24 @@ button {
   border-radius: 20px;
   cursor: pointer;
   font-size: 16px;
+  font-weight: bold;
+  box-sizing: border-box;
 }
 
 button:hover {
-  background-color: #ff9a03;
+  opacity: 0.9;
 }
 
 p {
-  color: #fff;
   font-size: 16px;
   margin-top: 12px;
+  text-align: center;
 }
 
 a {
   color: #ff9a03;
   text-decoration: none;
+  font-weight: bold;
 }
 
 a:hover {
@@ -68,11 +77,11 @@ a:hover {
 
 .top-left-image {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 20px;  
+  left: 20px; 
 }
 
 .top-left-image-content {
   width: 100px;
-  /* Ajuste o tamanho conforme necessário */
+  max-width: 25vw; 
 }

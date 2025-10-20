@@ -42,7 +42,7 @@ textarea {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    box-sizing: border-box; /* Garante que o padding não afete a largura total */
+    box-sizing: border-box; 
 }
 
 button {

@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             // --- AVISO DE DEBUG ---
             console.error('ALERTA: NENHUM TOKEN ENCONTRADO NO LOCALSTORAGE!');
-            // ----------------------
         }
 
         return fetch(url, { ...options, headers });

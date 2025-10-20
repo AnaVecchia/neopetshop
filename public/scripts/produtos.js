@@ -1,4 +1,14 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
+    const menuToggle = document.getElementById('menu-toggle');
+    const menuNav = document.getElementById('menu-nav');
+
+    if (menuToggle && menuNav) {
+        menuToggle.addEventListener('click', () => {
+            menuNav.classList.toggle('open');
+        });
+    }
+
+    // --- LÓGICA EXISTENTE DOS PRODUTOS ---
     const container = document.querySelector('.products-area');
     const detailsModal = document.getElementById('product-modal');
     const editModal = document.getElementById('edit-product-modal');
@@ -107,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!product) return;
         const imageUrl = product.image_url || 'https://via.placeholder.com/300x300?text=Sem+Imagem';
         const formattedPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price);
-        
+
         detailsModal.innerHTML = `
             <div class="modal-content">
                 <span class="close-modal">&times;</span>
@@ -136,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('edit-description').value = productToEdit.description;
         document.getElementById('edit-price').value = productToEdit.price;
         document.getElementById('edit-image_url').value = productToEdit.image_url || '';
-        
+
         editModal.classList.add('show');
     }
 
@@ -196,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!response.ok) {
                 throw new Error(data.message || 'Falha ao atualizar o produto.');
             }
-            
+
             alert(data.message);
             hideEditModal();
             init();
@@ -205,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function () {
             alert(error.message);
         }
     });
-    
+
     document.getElementById('cancel-edit-btn').addEventListener('click', hideEditModal);
 
     init();
