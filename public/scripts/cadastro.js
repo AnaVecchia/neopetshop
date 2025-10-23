@@ -6,7 +6,7 @@ document.getElementById('cadastro-form').addEventListener('submit', async functi
     submitButton.textContent = 'Cadastrando...';
 
     try {
-        // --- ETAPA 1: Busca a foto do cachorro primeiro ---
+        // Busca a foto do cachorro primeiro ---
         let profileImageUrl = 'https://media.istockphoto.com/id/178482530/photo/placeholder-banner-dog.jpg?s=612x612&w=0&k=20&c=--7JEUvZkBkObHgs2-m0IIKbh-D4QO58GLxw_HyxPc4='; // Uma imagem padrão caso a API falhe
         try {
             const dogApiResponse = await fetch('https://dog.ceo/api/breeds/image/random');
@@ -18,13 +18,13 @@ document.getElementById('cadastro-form').addEventListener('submit', async functi
             console.warn('API de fotos de cachorro falhou, usando imagem padrão.', apiError);
         }
         
-        // --- ETAPA 2: Coleta os dados do formulário ---
+        //  Coleta os dados do formulário ---
         const email = document.getElementById('email').value;
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const phone = document.getElementById('phone').value;
 
-        // --- ETAPA 3: Monta o corpo da requisição COM a URL da foto ---
+        // Monta o corpo da requisição COM a URL da foto ---
         const registrationData = {
             email,
             username,
@@ -33,7 +33,7 @@ document.getElementById('cadastro-form').addEventListener('submit', async functi
             profile_image_url: profileImageUrl // Envia a URL pronta
         };
 
-        // --- ETAPA 4: Envia tudo para o seu backend ---
+        // Envia tudo para o seu backend ---
         const response = await fetch('http://localhost:3030/api/auth/register', {
             method: 'POST',
             headers: {

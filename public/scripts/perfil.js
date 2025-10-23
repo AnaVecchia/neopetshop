@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const profileImg = document.getElementById('profile-img');
     const usernameInput = document.getElementById('username');
     const emailInput = document.getElementById('email');
@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const saveBtn = document.getElementById('save-btn');
     const cancelBtn = document.getElementById('cancel-btn');
     const profileForm = document.getElementById('profile-form');
-    
+
     let originalUserData = {};
 
     async function fetchWithAuth(url, options = {}) {
@@ -50,7 +50,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function toggleEditMode(isEditing) {
         usernameInput.disabled = !isEditing;
+        emailInput.disabled = !isEditing; 
         phoneInput.disabled = !isEditing;
+
         editBtn.hidden = isEditing;
         saveBtn.hidden = !isEditing;
         cancelBtn.hidden = !isEditing;
@@ -61,19 +63,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     cancelBtn.addEventListener('click', () => {
+        // Restaura todos os campos editáveis
         usernameInput.value = originalUserData.username;
+        emailInput.value = originalUserData.email; // <-- ALTERAÇÃO AQUI (Restaura o email)
         phoneInput.value = originalUserData.phone;
         toggleEditMode(false);
     });
 
-    profileForm.addEventListener('submit', async function(event) {
+    profileForm.addEventListener('submit', async function (event) {
         event.preventDefault();
-        
+
         saveBtn.disabled = true;
         saveBtn.textContent = 'Salvando...';
 
         const updatedData = {
             username: usernameInput.value,
+            email: emailInput.value, // <-- ALTERAÇÃO AQUI (Inclui email no envio)
             phone: phoneInput.value,
         };
 
@@ -88,17 +93,20 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) {
                 throw new Error(result.message || 'Falha ao atualizar o perfil.');
             }
-            
+
+            // Atualiza o localStorage com os novos dados do usuário retornados pela API
             localStorage.setItem('user', JSON.stringify(result.user));
+            // Atualiza a variável local de dados originais
             originalUserData = { ...result.user };
 
-            alert(result.message);
+            alert(result.message || 'Perfil atualizado com sucesso!');
             toggleEditMode(false);
 
         } catch (error) {
             alert(`Erro: ${error.message}`);
             // Restaura o formulário para o estado original em caso de erro
             usernameInput.value = originalUserData.username;
+            emailInput.value = originalUserData.email; // <-- ALTERAÇÃO AQUI (Restaura email no erro)
             phoneInput.value = originalUserData.phone;
         } finally {
             saveBtn.disabled = false;
@@ -106,9 +114,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Carrega os dados do perfil assim que a página é carregada
     populateProfileData();
 
-    // --- NOVO CÓDIGO PARA O MENU MOBILE RESPONSIVO ---
+    // --- CÓDIGO PARA O MENU MOBILE RESPONSIVO ---
     const menuToggle = document.getElementById('menu-toggle');
     const mainMenu = document.getElementById('main-menu');
 

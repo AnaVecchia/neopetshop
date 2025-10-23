@@ -1,6 +1,6 @@
-
-
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+/* --- ANIMAÇÕES GERAIS --- */
 @keyframes floatAnimation {
 
     0%,
@@ -578,46 +578,48 @@ header .menu-area {
         border-bottom-left-radius: 60px;
     }
 
-.menu-mobile {
-    display: block;
-}
+    .menu-mobile {
+        display: block;
+    }
 
-header .menu-area {
-    display: none; 
-    flex-direction: column;
-    position: absolute;
-    top: 80px; 
-    left: 0;
-    width: 100%;
-    background-color: var(--primary-blue);
-    padding: 0;
-}
+    header .menu-area {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background-color: var(--primary-blue);
+        padding: 0;
+    }
 
-/* Estilo do menu quando a classe 'open' é adicionada
-header .menu-area.open {
-    display: flex; 
-}
+    /* --- CORREÇÃO DO MENU MOBILE (DESCOMENTADO) --- */
+    header .menu-area.open {
+        display: flex;
+    }
 
-.menu--item {
-    width: 100%;
-    text-align: center;
-}
+    .menu--item {
+        width: 100%;
+        text-align: center;
+    }
 
-.menu--item a {
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    padding: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-}
+    .menu--item a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
 
-.menu--item:first-child a {
-    border-top: none;
-}
+    .menu--item:first-child a {
+        border-top: none;
+    }
 
-.icon-link span {
-    display: inline-block !important;
-}
+    .icon-link span {
+        display: inline-block !important;
+    }
+
+    /* --- FIM DA CORREÇÃO DO MENU --- */
 
     .banner-area {
         flex-direction: column;
@@ -634,59 +636,172 @@ header .menu-area.open {
         text-align: center;
     }
 
-/* Define o tamanho do modal de checkout */
-#checkout-modal .modal-content {
-    max-width: 550px;
-    padding: 0; 
-    overflow: hidden;
-}
-.checkout-step {
-    display: none;
-}
-.checkout-step.active {
-    display: block;
+    /* Define o tamanho do modal de checkout */
+    #checkout-modal .modal-content {
+        max-width: 550px;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .checkout-step {
+        display: none;
+    }
+
+    .checkout-step.active {
+        display: block;
+    }
+
+    /* Opções de pagamento */
+    .payment-options {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .payment-option {
+        padding: 15px;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .payment-option:hover {
+        border-color: var(--primary-blue);
+        background-color: #f5f9fc;
+    }
+
+    .payment-option.selected {
+        border-color: var(--primary-blue);
+        background-color: #eaf2f8;
+        font-weight: 600;
+        box-shadow: 0 0 0 3px rgba(58, 122, 170, 0.2);
+    }
+
+    /* Tela de confirmação final */
+    .confirmation-screen {
+        text-align: center;
+        padding: 30px;
+    }
+
+    .confirmation-screen h3 {
+        font-size: 1.8rem;
+        color: #28a745;
+        margin-bottom: 15px;
+    }
+
+    .confirmation-screen p {
+        color: var(--text-secondary);
+        margin-bottom: 30px;
+    }
 }
 
-/* Opções de pagamento */
-.payment-options {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
+/* ======================================================= */
+/* --- ESTILOS DO TOAST DE NOTIFICAÇÃO (CORRIGIDO) --- */
+/* ======================================================= */
+#custom-toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
 
-.payment-option {
-    padding: 15px;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
+    /* Posição inicial (invisível, acima da tela) */
+    transform: translateX(-50%) translateY(-150px);
+    opacity: 0;
+    visibility: hidden;
 
-.payment-option:hover {
-    border-color: var(--primary-blue);
-    background-color: #f5f9fc;
-}
-
-.payment-option.selected {
-    border-color: var(--primary-blue);
-    background-color: #eaf2f8;
+    color: white;
+    padding: 16px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    font-size: 1rem;
     font-weight: 600;
-    box-shadow: 0 0 0 3px rgba(58, 122, 170, 0.2);
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+    width: auto;
+    min-width: 300px;
+    max-width: 500px;
+
+    z-index: 2001;
+
+    /* Transição para sumir suavemente */
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out, visibility 0.5s;
 }
 
-/* Tela de confirmação final */
-.confirmation-screen {
-    text-align: center;
-    padding: 30px;
+/* Classe 'show' que o JS vai adicionar */
+#custom-toast.show {
+    visibility: visible;
+    opacity: 1;
+    /* Posição final (desliza para baixo) */
+    transform: translateX(-50%) translateY(0);
+    /* Transição de entrada (mais rápida e com "bounce") */
+    transition: opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), visibility 0.4s;
 }
-.confirmation-screen h3 {
-    font-size: 1.8rem;
-    color: #28a745; 
-    margin-bottom: 15px;
+
+/* --- Tipos de Notificação --- */
+
+/* Ícones */
+#custom-toast.success::before,
+#custom-toast.error::before,
+#custom-toast.cart::before,
+#custom-toast.info::before {
+    margin-right: 10px;
+    font-weight: normal;
+    /* Para o ícone não ficar negrito */
 }
-.confirmation-screen p {
-    color: var(--text-secondary);
-    margin-bottom: 30px;
+
+#custom-toast.success::before {
+    content: '✔ ';
 }
+
+#custom-toast.error::before {
+    content: '✖ ';
+}
+
+#custom-toast.cart::before {
+    content: '🛒 ';
+}
+
+#custom-toast.info::before {
+    content: 'ℹ️ ';
+}
+
+/* Cores */
+#custom-toast.success {
+    background-color: #22c55e;
+}
+
+/* Verde Vibrante */
+#custom-toast.error {
+    background-color: #ef4444;
+}
+
+/* Vermelho Vibrante */
+#custom-toast.cart {
+    background-color: var(--accent-orange);
+    cursor: pointer;
+}
+
+/* Laranja do Tema */
+#custom-toast.info {
+    background-color: var(--primary-blue);
+}
+
+/* Azul do Tema */
+
+/* Efeito Hover no Carrinho */
+#custom-toast.cart:hover {
+    filter: brightness(1.15);
+}
+
+
+/* --- Media Query para Responsividade da Notificação --- */
+@media (max-width: 600px) {
+    #custom-toast {
+        width: 90%;
+        min-width: 0;
+        padding: 14px 20px;
+        font-size: 0.9rem;
+    }
 }
