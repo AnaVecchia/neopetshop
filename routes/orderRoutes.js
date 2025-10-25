@@ -6,6 +6,28 @@ const { verifyToken } = require('../middleware/auth'); // middleware de autentic
 const router = express.Router();
 
 // post /api/orders - cria um novo pedido para o usuário autenticado
+/*
+    #swagger.tags = ['Orders']
+    #swagger.summary = 'cria um novo pedido.'
+    #swagger.description = 'registra um novo pedido para o usuário autenticado com base nos itens do carrinho fornecidos. utiliza transação no banco de dados.'
+    #swagger.security = [{ "bearerAuth": [] }]
+    #swagger.parameters['obj'] = {
+        in: 'body',
+        description: 'carrinho de compras contendo os produtos e quantidades.',
+        required: true,
+        schema: { $ref: "#/definitions/OrderPayload" }
+    }
+    #swagger.responses[201] = {
+        description: 'pedido realizado com sucesso.',
+        schema: {
+            message: 'pedido realizado com sucesso!',
+            orderId: 1
+        }
+    }
+    #swagger.responses[400] = { description: 'carrinho vazio ou inválido.', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[401] = { description: 'token inválido ou expirado.', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[500] = { description: 'erro interno ao criar pedido (ex: produto inválido, falha na transação).', schema: { $ref: "#/definitions/ErrorResponse" } }
+*/
 router.post('/', verifyToken, async (req, res) => {
     const { cart } = req.body; // extrai o carrinho do corpo da requisição
     const userId = req.user.userId; // obtém o ID do usuário a partir do token verificado
@@ -73,6 +95,23 @@ router.post('/', verifyToken, async (req, res) => {
 });
 
 // get /api/orders/user - busca o histórico de pedidos do usuário autenticado
+/*
+    #swagger.tags = ['Orders']
+    #swagger.summary = 'lista os pedidos do usuário autenticado.'
+    #swagger.description = 'retorna um array com o histórico de pedidos (id, data, total, status) do usuário associado ao token jwt.'
+    #swagger.security = [{ "bearerAuth": [] }]
+    #swagger.responses[200] = {
+        description: 'lista de pedidos retornada com sucesso.',
+        schema: [{
+            id: 1,
+            order_date: '2025-10-26T18:30:00.000Z',
+            total_price: 179.80,
+            status: 'aguardando pagamento'
+        }]
+    }
+    #swagger.responses[401] = { description: 'token inválido ou expirado.', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[500] = { description: 'erro interno ao buscar pedidos.', schema: { $ref: "#/definitions/ErrorResponse" } }
+*/
 router.get('/user', verifyToken, async (req, res) => {
     const userId = req.user.userId; // obtém o ID do usuário a partir do token
     try {

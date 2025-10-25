@@ -7,6 +7,8 @@ const cors = require('cors');
 const path = require('path');
 const connection = require('./db_config'); // assume exportação do pool mysql2/promise
 const bcrypt = require('bcrypt'); // necessário para a rota de setup
+const swaggerUi = require('swagger-ui-express'); // importa swagger-ui
+const swaggerDocument = require('./swagger_output.json'); 
 
 // importação dos arquivos de rotas
 const authRoutes = require('./routes/authRoutes');
@@ -24,6 +26,9 @@ const saltRounds = 10; // custo do hashing bcrypt para setup
 app.use(cors()); // habilita cors para todas as origens
 app.use(express.json()); // habilita o parsing de json no corpo das requisições
 app.use(express.static(path.join(__dirname, 'public'))); // serve arquivos estáticos da pasta 'public'
+
+// --- rota para a documentação swagger ui ---
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // --- registro das rotas da api ---
 
@@ -119,4 +124,5 @@ app.use((req, res, next) => {
 app.listen(port, () => {
     console.log(`servidor rodando na porta ${port}`);
     console.log(`link: http://localhost:${port}`);
+    console.log(`documentação da api disponível em http://localhost:${port}/api-docs`);
 });

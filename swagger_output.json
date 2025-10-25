@@ -1,0 +1,396 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "API Pelos & Patas E-commerce",
+    "description": "documentação da API RESTful para o TCC Pelos & Patas."
+  },
+  "host": "localhost:3030",
+  "basePath": "/api",
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "endpoints de autenticação e cadastro"
+    },
+    {
+      "name": "Users",
+      "description": "endpoints de gerenciamento de usuários"
+    },
+    {
+      "name": "Products",
+      "description": "endpoints de gerenciamento de produtos"
+    },
+    {
+      "name": "Orders",
+      "description": "endpoints de gerenciamento de pedidos"
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "securityDefinitions": {
+    "bearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "insira o token JWT no formato: Bearer <token>"
+    }
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "autentica um usuário.",
+        "description": "recebe email e senha, verifica credenciais no banco (comparando hash bcrypt) e retorna um token jwt e dados básicos do usuário (sem senha) em caso de sucesso.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "credenciais de login.",
+            "required": true,
+            "schema": { "$ref": "#/definitions/LoginCredentials" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "login bem-sucedido.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                 "success": { "type": "boolean", "example": true },
+                 "message": { "type": "string", "example": "login bem-sucedido!" },
+                 "token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGUiOiJjbGllbnRlIiwiaWF0IjoxNzE2NDk3NjAwLCJleHAiOjE3MTY1MDk2MDB9.somenicesignature" },
+                 "user": { "$ref": "#/definitions/UserBase" }
+              }
+            }
+          },
+          "400": { "description": "email ou senha não fornecidos.", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "401": { "description": "email ou senha inválidos.", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "500": { "description": "erro interno do servidor.", "schema": { "$ref": "#/definitions/ErrorResponse" } }
+        }
+      }
+    },
+    "/auth/cadastro": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "registra um novo usuário.",
+        "description": "recebe dados do novo usuário (incluindo url de imagem opcional), gera hash da senha e salva no banco. verifica duplicidade de email.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "dados para cadastro do novo usuário.",
+            "required": true,
+            "schema": { "$ref": "#/definitions/UserRegistration" }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "usuário cadastrado com sucesso.",
+            "schema": { "type": "object", "properties": { "message": { "type": "string", "example": "usuário cadastrado com sucesso!" } } }
+          },
+          "400": { "description": "campos obrigatórios ausentes ou email inválido.", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "409": { "description": "o email informado já está em uso.", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "500": { "description": "erro interno ao cadastrar usuário.", "schema": { "$ref": "#/definitions/ErrorResponse" } }
+        }
+      }
+    },
+    "/users/{id}": {
+      "put": {
+        "tags": ["Users"],
+        "summary": "atualiza o perfil do usuário autenticado.",
+        "description": "permite que o usuário autenticado atualize seu nome de usuário, email e telefone. o id na url deve corresponder ao id do token.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "id do usuário a ser atualizado.",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "dados a serem atualizados.",
+            "required": true,
+            "schema": { "$ref": "#/definitions/UserProfileUpdate" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "perfil atualizado com sucesso.",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "message": { "type": "string", "example": "perfil atualizado com sucesso!" },
+                    "user": { "$ref": "#/definitions/UserBase" }
+                }
+            }
+          },
+          "400": { "description": "dados inválidos (campos obrigatórios, formato de id/email).", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "401": { "description": "token inválido ou expirado.", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "403": { "description": "tentativa de editar perfil de outro usuário.", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "404": { "description": "usuário não encontrado.", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "409": { "description": "o email informado já está em uso por outra conta.", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "500": { "description": "erro interno ao atualizar usuário.", "schema": { "$ref": "#/definitions/ErrorResponse" } }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "lista todos os produtos.",
+        "description": "retorna um array com todos os produtos cadastrados, ordenados por id decrescente.",
+        "responses": {
+          "200": {
+            "description": "lista de produtos retornada com sucesso.",
+            "schema": {
+                "type": "array",
+                "items": { "$ref": "#/definitions/ProductDetails" }
+            }
+          },
+          "500": { "description": "erro interno ao buscar produtos.", "schema": { "$ref": "#/definitions/ErrorResponse" } }
+        }
+      },
+      "post": {
+        "tags": ["Products"],
+        "summary": "cria um novo produto (admin).",
+        "description": "adiciona um novo produto ao catálogo. requer autenticação como administrador.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "dados do novo produto.",
+            "required": true,
+            "schema": { "$ref": "#/definitions/Product" }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "produto inserido com sucesso.",
+            "schema": { "type": "object", "properties": {"message": { "type": "string", "example": "produto inserido com sucesso!" } } }
+          },
+          "400": { "description": "dados inválidos (campos obrigatórios, preço inválido).", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "401": { "description": "token inválido ou expirado.", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "403": { "description": "acesso negado (não é admin).", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "500": { "description": "erro interno ao criar produto.", "schema": { "$ref": "#/definitions/ErrorResponse" } }
+        }
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "busca detalhes de um produto por id.",
+        "description": "retorna os dados completos de um único produto com base no seu id numérico.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "id numérico do produto.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "dados do produto retornados com sucesso.",
+            "schema": { "$ref": "#/definitions/ProductDetails" }
+          },
+          "400": { "description": "id do produto inválido.", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "404": { "description": "produto não encontrado.", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "500": { "description": "erro interno ao buscar detalhes do produto.", "schema": { "$ref": "#/definitions/ErrorResponse" } }
+        }
+      },
+      "put": {
+        "tags": ["Products"],
+        "summary": "atualiza um produto existente (admin).",
+        "description": "modifica os dados de um produto existente com base no id. requer autenticação como administrador.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "id do produto a ser atualizado.",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "novos dados do produto.",
+            "required": true,
+            "schema": { "$ref": "#/definitions/Product" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "produto atualizado com sucesso.",
+            "schema": { "type": "object", "properties": {"message": { "type": "string", "example": "produto atualizado com sucesso!" } } }
+          },
+          "400": { "description": "dados inválidos (id, campos obrigatórios, preço inválido).", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "401": { "description": "token inválido ou expirado.", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "403": { "description": "acesso negado (não é admin).", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "404": { "description": "produto não encontrado para atualização.", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "500": { "description": "erro interno ao atualizar produto.", "schema": { "$ref": "#/definitions/ErrorResponse" } }
+        }
+      }
+    },
+    "/orders": {
+      "post": {
+        "tags": ["Orders"],
+        "summary": "cria um novo pedido.",
+        "description": "registra um novo pedido para o usuário autenticado com base nos itens do carrinho fornecidos. utiliza transação no banco de dados.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "carrinho de compras contendo os produtos e quantidades.",
+            "required": true,
+            "schema": { "$ref": "#/definitions/OrderPayload" }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "pedido realizado com sucesso.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "pedido realizado com sucesso!" },
+                "orderId": { "type": "integer", "example": 123 }
+              }
+            }
+          },
+          "400": { "description": "carrinho vazio ou inválido.", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "401": { "description": "token inválido ou expirado.", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "500": { "description": "erro interno ao criar pedido (ex: produto inválido, falha na transação).", "schema": { "$ref": "#/definitions/ErrorResponse" } }
+        }
+      }
+    },
+    "/orders/user": {
+      "get": {
+        "tags": ["Orders"],
+        "summary": "lista os pedidos do usuário autenticado.",
+        "description": "retorna um array com o histórico de pedidos (id, data, total, status) do usuário associado ao token jwt.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "lista de pedidos retornada com sucesso.",
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/OrderSummary" }
+            }
+          },
+          "401": { "description": "token inválido ou expirado.", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "500": { "description": "erro interno ao buscar pedidos.", "schema": { "$ref": "#/definitions/ErrorResponse" } }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "LoginCredentials": {
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email", "example": "admin@email.com" },
+        "password": { "type": "string", "format": "password", "example": "admin123" }
+      },
+      "required": ["email", "password"]
+    },
+    "UserRegistration": {
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email", "example": "cliente@email.com" },
+        "username": { "type": "string", "example": "Cliente Teste" },
+        "password": { "type": "string", "format": "password", "example": "user123" },
+        "phone": { "type": "string", "example": "51999998888" },
+        "profile_image_url": { "type": "string", "format": "url", "example": "https://images.dog.ceo/breeds/terrier-patterdale/Patterdale.jpg" }
+      },
+      "required": ["email", "username", "password", "phone"]
+    },
+    "UserProfileUpdate": {
+      "type": "object",
+      "properties": {
+        "username": { "type": "string", "example": "Cliente Teste Atualizado" },
+        "email": { "type": "string", "format": "email", "example": "cliente_novo@email.com" },
+        "phone": { "type": "string", "example": "51988887777" }
+      },
+      "required": ["username", "email", "phone"]
+    },
+    "UserBase": {
+        "type": "object",
+        "properties": {
+            "id": { "type": "integer", "example": 1 },
+            "email": { "type": "string", "format": "email", "example": "admin@email.com" },
+            "username": { "type": "string", "example": "Admin User" },
+            "phone": { "type": "string", "example": "51999998888" },
+            "profile_image_url": { "type": "string", "format": "url", "example": "https://images.dog.ceo/breeds/hound-afghan/n02088094_1003.jpg" },
+            "role": { "type": "string", "enum": ["cliente", "admin"], "example": "admin" }
+        }
+    },
+    "Product": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "example": "Ração Premium Cães Adultos" },
+        "description": { "type": "string", "example": "ração seca super premium sabor frango para cães adultos de portes médio e grande. 15kg." },
+        "image_url": { "type": "string", "format": "url", "example": "https://images.dog.ceo/breeds/affenpinscher/n02110627_13553.jpg" },
+        "price": { "type": "number", "format": "float", "example": 149.90 }
+      },
+      "required": ["title", "description", "price"]
+    },
+     "ProductDetails": {
+        "allOf": [
+            { "$ref": "#/definitions/Product" },
+            {
+                "type": "object",
+                "properties": {
+                    "id": { "type": "integer", "example": 1 }
+                },
+                 "required": ["id"]
+            }
+        ]
+     },
+    "CartItem": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer", "description": "id do produto", "example": 1 },
+        "quantity": { "type": "integer", "description": "quantidade do produto", "example": 2, "minimum": 1 }
+      },
+      "required": ["id", "quantity"]
+    },
+    "OrderPayload": {
+      "type": "object",
+      "properties": {
+        "cart": {
+          "type": "array",
+          "description": "array de itens no carrinho.",
+          "items": { "$ref": "#/definitions/CartItem" }
+        }
+      },
+      "required": ["cart"]
+    },
+    "OrderSummary": {
+        "type": "object",
+        "properties": {
+            "id": { "type": "integer", "example": 1 },
+            "order_date": { "type": "string", "format": "date-time", "example": "2025-10-26T18:30:00.000Z" },
+            "total_price": { "type": "number", "format": "float", "example": 179.80 },
+            "status": { "type": "string", "example": "aguardando pagamento" }
+        }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "message": { "type": "string", "example": "mensagem de erro detalhada" }
+      },
+       "required": ["message"]
+    }
+  }
+}

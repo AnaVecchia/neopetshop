@@ -4,8 +4,8 @@
 
 - **Curso:** Análise e Desenvolvimento de Sistemas
 - **Autora:** Ana Julia Della Vecchia
-- **Instituição:** [Nome da sua Instituição de Ensino]
-- **Orientador(a):** [Nome do(a) Orientador(a), se aplicável]
+- **Instituição:** Instituto Federal do Rio Grande do Sul - Campus Sertão
+- **Orientador(a):** Dr. Gabriel Patzer
 - **Data:** Outubro de 2025
 
 ![Status do Projeto](https://img.shields.io/badge/status-concluído-brightgreen)
@@ -13,6 +13,7 @@
 ![Node.js](https://img.shields.io/badge/Node.js-LTS-339933?logo=nodedotjs)
 ![Express.js](https://img.shields.io/badge/Express.js-4.x-000000?logo=express)
 ![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?logo=mysql)
+![Licença](https://img.shields.io/badge/licença-MIT-blue)
 
 ---
 
@@ -27,7 +28,7 @@
    - [4.3 Recursos Gerais](#43-recursos-gerais)
 5. [Detalhes da Implementação](#5-detalhes-da-implementação)
    - [5.1 Estrutura do Banco de Dados](#51-estrutura-do-banco-de-dados)
-   - [5.2 Documentação da API](#52-documentação-da-api)
+   - [5.2 Documentação da API (Swagger)](#52-documentação-da-api-swagger)
    - [5.3 Autenticação e Autorização](#53-autenticação-e-autorização)
 6. [Configuração e Execução do Ambiente](#6-configuração-e-execução-do-ambiente)
    - [6.1 Pré-requisitos](#61-pré-requisitos)
@@ -36,6 +37,7 @@
    - [6.4 Execução](#64-execução)
 7. [Conclusão e Trabalhos Futuros](#7-conclusão-e-trabalhos-futuros)
 8. [Autoria](#8-autoria)
+9. [Licença](#9-licença)
 
 ---
 
@@ -55,11 +57,18 @@ Este README serve como documentação central do projeto, detalhando sua arquite
 
 O sistema adota uma arquitetura cliente-servidor desacoplada, composta por três camadas principais:
 
-\+---------------------+       +------------------------+          +-------------------+
-|      Frontend       |        |    Backend (API REST)  |          |  Banco de Dados   |
-| (HTML, CSS, JS puros|        | (Node.js + Express.js) |          |      (MySQL)      |
-|  Servido Estático)  | \<--\> |   (localhost:3030)     | \<--\>   | (Servidor de BD)  |
-\+---------------------+       +------------------------+          +-------------------+
+FRONTEND:
+  - HTML
+  - CSS
+  - JS
+
+BACKEND (API REST):
+  - Node.js
+  - Express.js
+  (localhost:3030)
+
+BANCO DE DADOS:
+  - MySQL
 
 
 - **Frontend:** Consiste em arquivos estáticos (HTML, CSS, JavaScript) servidos diretamente pelo servidor Express.js através do middleware `express.static`. Toda a interatividade e comunicação com o backend ocorre via requisições assíncronas (`fetch`) à API RESTful, utilizando JSON como formato de dados. O estado da sessão do usuário (autenticação) e o carrinho de compras são gerenciados no lado do cliente via `localStorage`.
@@ -85,6 +94,9 @@ O sistema adota uma arquitetura cliente-servidor desacoplada, composta por três
   - `cors` (Middleware para Habilitar Cross-Origin Resource Sharing)
 - **Banco de Dados:**
   - MySQL (Sistema de Gerenciamento de Banco de Dados Relacional)
+- **Documentação da API:**
+  - `swagger-autogen` (Geração automática de especificação OpenAPI)
+  - `swagger-ui-express` (Interface web interativa para documentação Swagger)
 - **Controle de Versão:**
   - Git & GitHub (ou similar)
 
@@ -115,6 +127,7 @@ O sistema adota uma arquitetura cliente-servidor desacoplada, composta por três
 - **URLs de Detalhes:** Páginas de detalhes de produto acessíveis via ID na URL (ex: `/produto-detalhe.html?id=123`).
 - **Persistência Local:** Uso do `localStorage` para armazenar o token JWT, dados básicos do usuário e o carrinho de compras.
 - **Feedback ao Usuário:** Uso de `alert()` e notificações (toast) para informar sobre sucesso ou erro em operações (ex: adição ao carrinho, atualização de perfil).
+- **Documentação da API:** Interface Swagger UI interativa para visualização e teste dos endpoints.
 
 ---
 
@@ -140,7 +153,6 @@ CREATE TABLE users (
 CREATE TABLE products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
-    -- slug VARCHAR(255) NOT NULL UNIQUE, -- Removido
     description TEXT NOT NULL,
     image_url VARCHAR(255),
     price DECIMAL(10, 2) NOT NULL CHECK (price >= 0)
@@ -168,9 +180,14 @@ CREATE TABLE order_items (
 );
 ```
 
-### 5.2. Documentação da API
+### 5.2. Documentação da API (Swagger)
 
-Todos os endpoints da API são prefixados com `/api`.
+A API RESTful está documentada seguindo o padrão OpenAPI (Swagger 2.0). A documentação é gerada automaticamente a partir de comentários nos arquivos de rotas utilizando `swagger-autogen` e pode ser acessada interativamente através do `swagger-ui-express`.
+
+  - **Acesso:** Após iniciar o servidor backend, a documentação estará disponível em:
+    `http://localhost:3030/api-docs`
+
+  - **Endpoints:** Todos os endpoints da API são prefixados com `/api`. A tabela abaixo resume as rotas principais. Consulte a interface Swagger UI para detalhes completos sobre parâmetros, corpo das requisições e schemas de resposta.
 
 | Método | Rota                  | Descrição                                         | Proteção      |
 | :----- | :-------------------- | :-------------------------------------------------- | :------------ |
@@ -188,6 +205,7 @@ Todos os endpoints da API são prefixados com `/api`.
 
   - **Autenticação:** Realizada via `POST /api/auth/login`. Em caso de sucesso, um JWT é gerado contendo `userId` e `role`, assinado com um segredo (`JWT_SECRET`) definido nas variáveis de ambiente, e com tempo de expiração de 1 hora. O token é enviado ao cliente e armazenado no `localStorage`.
   - **Autorização:** Para cada requisição a endpoints protegidos, o cliente deve enviar o token no cabeçalho `Authorization: Bearer <token>`. O middleware `verifyToken` intercepta a requisição, valida a assinatura e a expiração do token. Se válido, extrai o payload (`userId`, `role`) e o anexa ao objeto `req.user`. O middleware `isAdmin` subsequentemente verifica se `req.user.role` é igual a `'admin'` para rotas administrativas.
+  - **Uso do Token (Importante):** Ao testar endpoints protegidos via ferramentas como Swagger UI ou Postman, o token JWT obtido no login deve ser inserido no campo de autorização precedido pela palavra ` Bearer  ` (com um espaço), por exemplo: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`.
 
 -----
 
@@ -203,7 +221,7 @@ Todos os endpoints da API são prefixados com `/api`.
 
 1.  Assegure que o servidor MySQL esteja em execução.
 2.  Crie um banco de dados dedicado para a aplicação (ex: `pelos_patas_tcc`).
-3.  As tabelas podem ser criadas manualmente executando o SQL da Seção 5.1 ou automaticamente através da rota de setup (Passo 6.4).
+3.  As tabelas podem ser criadas manualmente executando o SQL da Seção 5.1 ou automaticamente através da rota de setup (Passo 6.4). Certifique-se de que a configuração da conexão (`db_config.js`) permita `multipleStatements: true` se for usar a rota de setup.
 
 ### 6.3. Configuração do Backend
 
@@ -223,7 +241,7 @@ Todos os endpoints da API são prefixados com `/api`.
     DB_NAME=nome_do_seu_banco_de_dados
 
     # Segredo para assinatura do JWT (gere uma string longa e aleatória)
-    JWT_SECRET=crie_uma_chave_secreta_longa_e_aleatoria
+    JWT_SECRET=crie_uma_chave_secreta_aqui_bem_longa_e_segura
 
     # Porta do Servidor (opcional, padrão 3030)
     PORT=3030
@@ -231,23 +249,29 @@ Todos os endpoints da API são prefixados com `/api`.
 
 ### 6.4. Execução
 
-1.  **Iniciar o Servidor Backend:** No terminal, dentro da pasta do backend, execute:
+1.  **(Opcional, Primeira Vez) Gerar Documentação Swagger:** Execute o comando para gerar o arquivo `swagger_output.json`. Execute este comando sempre que modificar os comentários de documentação nas rotas.
+
+    ```bash
+    npm run swagger
+    ```
+
+2.  **Iniciar o Servidor Backend:** No terminal, dentro da pasta do backend, execute:
 
     ```bash
     npm start
     ```
 
-    O servidor iniciará na porta definida (padrão 3030).
+    O servidor iniciará na porta definida (padrão 3030). Uma mensagem indicará a URL para acessar a documentação da API.
 
-2.  **(Opcional) Setup Inicial do Banco:** Abra seu navegador e acesse a rota `http://localhost:3030/setup-database`. Isso irá apagar todas as tabelas existentes (se houver), recriá-las e inserir dados de teste (um usuário admin e um cliente). **Atenção:** Use esta rota apenas em ambiente de desenvolvimento.
+3.  **(Opcional) Setup Inicial do Banco:** Abra seu navegador e acesse a rota `http://localhost:3030/setup-database`. Isso irá apagar todas as tabelas existentes (se houver), recriá-las e inserir dados de teste (um usuário admin e um cliente). **Atenção:** Use esta rota apenas em ambiente de desenvolvimento.
 
-3.  **Acessar a Aplicação Frontend:** Abra o arquivo `index.html` localizado dentro da pasta `public` do projeto em seu navegador web. Alternativamente, acesse `http://localhost:3030/` que, devido à configuração do `express.static`, servirá o `index.html` automaticamente. Recomenda-se o uso da extensão "Live Server" no VS Code ou similar para desenvolvimento frontend, apontando para a pasta `public`.
+4.  **Acessar a Aplicação Frontend:** Abra o arquivo `index.html` localizado dentro da pasta `public` do projeto em seu navegador web. Alternativamente, acesse `http://localhost:3030/` que, devido à configuração do `express.static`, servirá o `index.html` automaticamente.
 
 -----
 
 ## 7\. Conclusão e Trabalhos Futuros
 
-O projeto "Pelos & Patas" cumpriu com sucesso os objetivos propostos, resultando em uma aplicação web de e-commerce funcional, segura e com uma arquitetura bem definida. Foram aplicados conhecimentos em desenvolvimento Full Stack JavaScript, modelagem de banco de dados relacional, implementação de API RESTful, e mecanismos de autenticação e autorização modernos.
+O projeto "Pelos & Patas" cumpriu com sucesso os objetivos propostos, resultando em uma aplicação web de e-commerce funcional, segura e com uma arquitetura bem definida. Foram aplicados conhecimentos em desenvolvimento Full Stack JavaScript, modelagem de banco de dados relacional, implementação de API RESTful, e mecanismos de autenticação e autorização modernos. A inclusão da documentação interativa via Swagger UI facilita a compreensão e o teste da API.
 
 Como trabalhos futuros, sugere-se:
 
@@ -255,7 +279,8 @@ Como trabalhos futuros, sugere-se:
   - Desenvolvimento de um painel administrativo mais completo (gerenciamento de usuários, visualização detalhada de pedidos).
   - Implementação de testes automatizados (unitários, integração, e2e).
   - Funcionalidades adicionais como busca de produtos, filtros e paginação.
-  - Otimização de performance e segurança (rate limiting, validação de entrada mais robusta).
+  - Otimização de performance e segurança (rate limiting, validação de entrada mais robusta, refresh tokens).
+  - Melhoria da interface do usuário e experiência do usuário (UX).
   - Processo de deploy para um ambiente de produção (ex: Heroku, AWS, Vercel).
 
 -----
@@ -267,3 +292,8 @@ Desenvolvido por **Ana Julia Della Vecchia** como requisito parcial para obtenç
   - **GitHub:** `[Link para o seu GitHub]`
   - **LinkedIn:** `[Link para o seu LinkedIn]`
 
+-----
+
+## 9\. Licença
+
+Este projeto será licenciado sob a Licença MIT. O arquivo `LICENSE` correspondente será adicionado ao repositório.

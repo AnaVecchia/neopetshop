@@ -8,6 +8,31 @@ const router = express.Router();
 const saltRounds = 10; // custo do hashing bcrypt
 
 // POST /api/auth/login - autentica um usuário
+/*
+    #swagger.path = '/auth/login'
+    #swagger.tags = ['Auth']
+    #swagger.summary = 'autentica um usuário.'
+    #swagger.description = 'recebe email e senha, verifica credenciais no banco (comparando hash bcrypt) e retorna um token jwt e dados básicos do usuário (sem senha) em caso de sucesso.'
+    #swagger.parameters['obj'] = {
+        in: 'body',
+        description: 'credenciais de login.',
+        required: true,
+        schema: { $ref: "#/definitions/LoginCredentials" }
+    }
+    #swagger.responses[200] = {
+        description: 'login bem-sucedido.',
+        schema: {
+            success: true,
+            message: 'login bem-sucedido!',
+            token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+            user: { $ref: "#/definitions/UserBase" } // refinar: definir UserBase em swagger.js
+        }
+    }
+    #swagger.responses[400] = { description: 'email ou senha não fornecidos.', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[401] = { description: 'email ou senha inválidos.', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[500] = { description: 'erro interno do servidor.', schema: { $ref: "#/definitions/ErrorResponse" } }
+*/
+
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -62,6 +87,25 @@ router.post('/login', async (req, res) => {
 });
 
 // POST /api/auth/cadastro - registra um novo usuário
+/*
+    #swagger.path = '/auth/cadastro'
+    #swagger.tags = ['Auth']
+    #swagger.summary = 'registra um novo usuário.'
+    #swagger.description = 'recebe dados do novo usuário (incluindo url de imagem opcional), gera hash da senha e salva no banco. verifica duplicidade de email.'
+    #swagger.parameters['obj'] = {
+        in: 'body',
+        description: 'dados para cadastro do novo usuário.',
+        required: true,
+        schema: { $ref: "#/definitions/UserRegistration" }
+    }
+    #swagger.responses[201] = {
+        description: 'usuário cadastrado com sucesso.',
+        schema: { message: 'usuário cadastrado com sucesso!' }
+    }
+    #swagger.responses[400] = { description: 'campos obrigatórios ausentes ou email inválido.', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[409] = { description: 'o email informado já está em uso.', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[500] = { description: 'erro interno ao cadastrar usuário.', schema: { $ref: "#/definitions/ErrorResponse" } }
+*/
 router.post('/cadastro', async (req, res) => {
     const { email, username, password, phone, profile_image_url } = req.body;
 

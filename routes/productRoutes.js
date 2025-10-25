@@ -4,6 +4,16 @@ const { verifyToken, isAdmin } = require('../middleware/auth'); // middlewares d
 const router = express.Router();
 
 // get /api/products - lista todos os produtos (público)
+/*
+    #swagger.tags = ['Products']
+    #swagger.summary = 'lista todos os produtos.'
+    #swagger.description = 'retorna um array com todos os produtos cadastrados, ordenados por id decrescente.'
+    #swagger.responses[200] = {
+        description: 'lista de produtos retornada com sucesso.',
+        schema: [{ $ref: "#/definitions/ProductDetails" }] // refinar: definir ProductDetails em swagger.js
+    }
+    #swagger.responses[500] = { description: 'erro interno ao buscar produtos.', schema: { $ref: "#/definitions/ErrorResponse" } }
+*/
 router.get('/', async (req, res) => {
     try {
         const query = 'SELECT * FROM products ORDER BY id DESC';
@@ -16,6 +26,24 @@ router.get('/', async (req, res) => {
 });
 
 // get /api/products/:id - busca detalhes de um produto específico (público)
+/*
+    #swagger.tags = ['Products']
+    #swagger.summary = 'busca detalhes de um produto por id.'
+    #swagger.description = 'retorna os dados completos de um único produto com base no seu id numérico.'
+    #swagger.parameters['id'] = {
+        in: 'path',
+        description: 'id numérico do produto.',
+        required: true,
+        type: 'integer'
+    }
+    #swagger.responses[200] = {
+        description: 'dados do produto retornados com sucesso.',
+        schema: { $ref: "#/definitions/ProductDetails" } // refinar: definir ProductDetails em swagger.js
+    }
+    #swagger.responses[400] = { description: 'id do produto inválido.', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[404] = { description: 'produto não encontrado.', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[500] = { description: 'erro interno ao buscar detalhes do produto.', schema: { $ref: "#/definitions/ErrorResponse" } }
+*/
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     // validação básica do ID (se é um número inteiro positivo)
@@ -38,6 +66,26 @@ router.get('/:id', async (req, res) => {
 });
 
 // post /api/products - cria um novo produto (requer admin)
+/*
+    #swagger.tags = ['Products']
+    #swagger.summary = 'cria um novo produto (admin).'
+    #swagger.description = 'adiciona um novo produto ao catálogo. requer autenticação como administrador.'
+    #swagger.security = [{ "bearerAuth": [] }]
+    #swagger.parameters['obj'] = {
+        in: 'body',
+        description: 'dados do novo produto.',
+        required: true,
+        schema: { $ref: "#/definitions/Product" }
+    }
+    #swagger.responses[201] = {
+        description: 'produto inserido com sucesso.',
+        schema: { message: 'produto inserido com sucesso!' }
+    }
+    #swagger.responses[400] = { description: 'dados inválidos (campos obrigatórios, preço inválido).', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[401] = { description: 'token inválido ou expirado.', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[403] = { description: 'acesso negado (não é admin).', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[500] = { description: 'erro interno ao criar produto.', schema: { $ref: "#/definitions/ErrorResponse" } }
+*/
 router.post('/', verifyToken, isAdmin, async (req, res) => {
     const { title, description, image_url, price } = req.body;
     const numericPrice = parseFloat(price); // converte preço para número
@@ -60,6 +108,33 @@ router.post('/', verifyToken, isAdmin, async (req, res) => {
 });
 
 // put /api/products/:id - atualiza um produto existente (requer admin)
+/*
+    #swagger.tags = ['Products']
+    #swagger.summary = 'atualiza um produto existente (admin).'
+    #swagger.description = 'modifica os dados de um produto existente com base no id. requer autenticação como administrador.'
+    #swagger.security = [{ "bearerAuth": [] }]
+    #swagger.parameters['id'] = {
+        in: 'path',
+        description: 'id do produto a ser atualizado.',
+        required: true,
+        type: 'integer'
+    }
+    #swagger.parameters['obj'] = {
+        in: 'body',
+        description: 'novos dados do produto.',
+        required: true,
+        schema: { $ref: "#/definitions/Product" }
+    }
+    #swagger.responses[200] = {
+        description: 'produto atualizado com sucesso.',
+        schema: { message: 'produto atualizado com sucesso!' }
+    }
+    #swagger.responses[400] = { description: 'dados inválidos (id, campos obrigatórios, preço inválido).', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[401] = { description: 'token inválido ou expirado.', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[403] = { description: 'acesso negado (não é admin).', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[404] = { description: 'produto não encontrado para atualização.', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[500] = { description: 'erro interno ao atualizar produto.', schema: { $ref: "#/definitions/ErrorResponse" } }
+*/
 router.put('/:id', verifyToken, isAdmin, async (req, res) => {
     const { id } = req.params;
     const { title, description, image_url, price } = req.body;

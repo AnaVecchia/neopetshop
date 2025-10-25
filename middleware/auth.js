@@ -8,7 +8,7 @@ function verifyToken(req, res, next) {
 
     // retorna erro se o token não for encontrado
     if (!token) {
-        return res.status(401).json({ message: 'token de autenticação não fornecido.' }); // 401 para não autorizado
+        return res.status(401).json({ message: `token de autenticação não fornecido., ${token}` }); // 401 para não autorizado
     }
 
     // verifica o token usando o segredo do .env
