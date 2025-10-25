@@ -289,7 +289,7 @@ Como trabalhos futuros, sugere-se:
 
 Desenvolvido por **Ana Julia Della Vecchia** como requisito parcial para obtenção do título de Tecnólogo em Análise e Desenvolvimento de Sistemas.
 
-  - **GitHub:** `[[Link para o seu GitHub](https://github.com/anavecchia)]`
+  - **GitHub:** `[Link para o seu GitHub](https://github.com/anavecchia)`
 
 -----
 
