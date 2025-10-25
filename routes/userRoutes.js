@@ -1,60 +1,72 @@
-// Em routes/userRoutes.js
-
 const express = require('express');
-const connection = require('../db_config');
-const { verifyToken } = require('../middleware/auth');
+const connection = require('../db_config'); // assume exportação do pool mysql2/promise
+const { verifyToken } = require('../middleware/auth'); // middleware de autenticação
 const router = express.Router();
 
-// PUT /api/users/:id - Atualiza o perfil do usuário logado
+// put /api/users/:id - atualiza o perfil do usuário autenticado
 router.put('/:id', verifyToken, async (req, res) => {
     const { id } = req.params;
-    // CORREÇÃO: Extrai também o email do corpo da requisição
-    const { username, email, phone } = req.body;
+    const { username, email, phone } = req.body; // extrai dados do corpo da requisição
 
-    // Garante que o usuário só pode editar seu próprio perfil
+    // validação: usuário só pode editar o próprio perfil
     if (parseInt(req.user.userId) !== parseInt(id)) {
-        return res.status(403).json({ message: 'Acesso negado: você só pode editar seu próprio perfil.' });
+        return res.status(403).json({ message: 'acesso negado: você só pode editar seu próprio perfil.' }); // 403 Forbidden
     }
 
-    // Validação dos campos obrigatórios
+    // validação: campos obrigatórios
     if (!username || !email || !phone) {
-        return res.status(400).json({ message: 'Nome de usuário, email e telefone são obrigatórios.' });
+        return res.status(400).json({ message: 'nome de usuário, email e telefone são obrigatórios.' }); // 400 Bad Request
     }
 
-    // Validação básica de formato de email (pode ser aprimorada)
+    // validação: formato básico de email
     if (!/\S+@\S+\.\S+/.test(email)) {
-         return res.status(400).json({ message: 'Formato de email inválido.' });
+         return res.status(400).json({ message: 'formato de email inválido.' }); // 400 Bad Request
+    }
+
+     // validação básica do ID (número inteiro positivo)
+     if (!/^\d+$/.test(id)) {
+        return res.status(400).json({ message: 'ID do usuário inválido.' });
     }
 
     try {
-        // CORREÇÃO: Inclui o campo email na query UPDATE
+        // atualiza os dados do usuário no banco
         const updateQuery = 'UPDATE users SET username = ?, email = ?, phone = ? WHERE id = ?';
-        await connection.query(updateQuery, [username, email, phone, id]);
+        const [updateResult] = await connection.query(updateQuery, [username, email, phone, id]);
 
-        // Busca os dados atualizados para retornar ao frontend
+        // verifica se o usuário foi encontrado e atualizado
+        if (updateResult.affectedRows === 0) {
+             // teoricamente não deve ocorrer devido à verificação do token, mas é uma segurança
+             return res.status(404).json({ message: 'usuário não encontrado para atualização.' }); // 404 Not Found
+        }
+
+        // busca os dados atualizados (sem a senha) para retornar ao frontend
         const selectQuery = 'SELECT id, username, email, phone, profile_image_url, role FROM users WHERE id = ?';
         const [updatedUsers] = await connection.query(selectQuery, [id]);
 
-        if (updatedUsers.length === 0) {
-            // Este caso não deveria acontecer se a validação do token funcionou, mas é uma boa prática
-            return res.status(404).json({ message: 'Usuário não encontrado após atualização.' });
-        }
+        // verifica se a busca pós-update retornou o usuário (confirmação extra)
+         if (updatedUsers.length === 0) {
+             console.error(`usuário id ${id} atualizado, mas não encontrado imediatamente após.`);
+             return res.status(404).json({ message: 'usuário não encontrado após atualização.' });
+         }
 
-        // Retorna o usuário completo (sem a senha)
+        // remove hash da senha antes de retornar
         const { password: _, ...userWithoutPassword } = updatedUsers[0];
 
+        // envia resposta de sucesso com os dados atualizados
         res.status(200).json({
-            message: 'Perfil atualizado com sucesso!',
+            message: 'perfil atualizado com sucesso!',
             user: userWithoutPassword
         });
+
     } catch (error) {
-        // Trata erro de email duplicado
+        // trata erro específico de email duplicado (constraint UNIQUE)
         if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(409).json({ message: 'O email informado já está em uso por outra conta.' });
+            return res.status(409).json({ message: 'o email informado já está em uso por outra conta.' }); // 409 Conflict
         }
-        console.error('Erro ao atualizar usuário:', error);
-        res.status(500).json({ message: 'Erro interno ao atualizar usuário.' });
+        // trata outros erros de banco ou inesperados
+        console.error('erro ao atualizar usuário:', error);
+        res.status(500).json({ message: 'erro interno ao atualizar usuário.' }); // 500 Internal Server Error
     }
 });
 
-module.exports = router; // Certifique-se de que o router é exportado
+module.exports = router;

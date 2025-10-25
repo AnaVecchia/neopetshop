@@ -1,64 +1,67 @@
-document.getElementById('cadastro-form').addEventListener('submit', async function(event) { // A função se torna async
-    event.preventDefault();
+document.addEventListener('DOMContentLoaded', function () {
+    const cadastroForm = document.getElementById('cadastro-form');
 
-    const submitButton = this.querySelector('button[type="submit"]');
-    submitButton.disabled = true; // Desabilita o botão para evitar cliques duplos
-    submitButton.textContent = 'Cadastrando...';
+    if (!cadastroForm) return; // sai se o formulário não existir
 
-    try {
-        // Busca a foto do cachorro primeiro ---
-        let profileImageUrl = 'https://media.istockphoto.com/id/178482530/photo/placeholder-banner-dog.jpg?s=612x612&w=0&k=20&c=--7JEUvZkBkObHgs2-m0IIKbh-D4QO58GLxw_HyxPc4='; // Uma imagem padrão caso a API falhe
+    cadastroForm.addEventListener('submit', async function(event) {
+        event.preventDefault(); // previne o envio padrão do formulário
+
+        const submitButton = this.querySelector('button[type="submit"]');
+        submitButton.disabled = true; // desabilita botão para evitar cliques múltiplos
+        submitButton.textContent = 'Cadastrando...';
+
         try {
-            const dogApiResponse = await fetch('https://dog.ceo/api/breeds/image/random');
-            if (dogApiResponse.ok) {
-                const dogApiData = await dogApiResponse.json();
-                profileImageUrl = dogApiData.message;
+            // busca url de imagem aleatória de cachorro
+            let profileImageUrl = 'https://media.istockphoto.com/id/178482530/photo/placeholder-banner-dog.jpg?s=612x612&w=0&k=20&c=--7JEUvZkBkObHgs2-m0IIKbh-D4QO58GLxw_HyxPc4='; // fallback
+            try {
+                const dogApiResponse = await fetch('https://dog.ceo/api/breeds/image/random');
+                if (dogApiResponse.ok) {
+                    const dogApiData = await dogApiResponse.json();
+                    profileImageUrl = dogApiData.message;
+                } else {
+                     console.warn(`API dog.ceo respondeu com status ${dogApiResponse.status}`);
+                }
+            } catch (apiError) {
+                console.warn('falha ao buscar imagem da API dog.ceo, usando imagem padrão.', apiError);
             }
-        } catch (apiError) {
-            console.warn('API de fotos de cachorro falhou, usando imagem padrão.', apiError);
+
+            // coleta dados do formulário
+            const registrationData = {
+                email: document.getElementById('email').value,
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                phone: document.getElementById('phone').value,
+                profile_image_url: profileImageUrl // inclui url da imagem
+            };
+
+            // envia dados para o endpoint de cadastro
+            const response = await fetch('http://localhost:3030/api/auth/cadastro', { // rota corrigida para /cadastro
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(registrationData)
+            });
+
+            const data = await response.json();
+
+            // verifica se a API retornou erro
+            if (!response.ok) {
+                throw new Error(data.message || 'ocorreu um erro no cadastro.');
+            }
+
+            // sucesso no cadastro
+            alert(data.message || 'cadastro realizado com sucesso!');
+            window.location.href = '/index.html'; // redireciona para login
+
+        } catch (error) {
+            // exibe erro para o usuário
+            console.error('erro durante o cadastro:', error);
+            alert(error.message || 'não foi possível completar o cadastro.');
+        } finally {
+            // reabilita o botão, independentemente do resultado
+            submitButton.disabled = false;
+            submitButton.textContent = 'Cadastrar';
         }
-        
-        //  Coleta os dados do formulário ---
-        const email = document.getElementById('email').value;
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const phone = document.getElementById('phone').value;
-
-        // Monta o corpo da requisição COM a URL da foto ---
-        const registrationData = {
-            email,
-            username,
-            password,
-            phone,
-            profile_image_url: profileImageUrl // Envia a URL pronta
-        };
-
-        // Envia tudo para o seu backend ---
-        const response = await fetch('http://localhost:3030/api/auth/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(registrationData)
-        });
-        
-        const data = await response.json();
-
-        if (!response.ok) {
-            // Se a resposta do servidor não for de sucesso (ex: 409 - email duplicado)
-            throw new Error(data.message || 'Ocorreu um erro no cadastro.');
-        }
-
-        // Se o cadastro deu certo
-        alert(data.message);
-        window.location.href = 'index.html';
-
-    } catch (error) {
-        // Se qualquer parte do processo falhar
-        alert(error.message);
-    } finally {
-        // Garante que o botão seja reativado, mesmo se der erro
-        submitButton.disabled = false;
-        submitButton.textContent = 'Cadastrar';
-    }
+    });
 });

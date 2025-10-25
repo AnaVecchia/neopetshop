@@ -1,47 +1,60 @@
-// /scripts/home.js
-
-// Aguarda o conteúdo da página ser totalmente carregado para garantir que os elementos HTML existam
 document.addEventListener('DOMContentLoaded', function () {
-    
-    // Pega os dados do usuário salvos no localStorage
-    const userDataString = localStorage.getItem('user');
 
-    // Verifica se existe algum dado de usuário salvo
+    // --- verificação de admin e adição do botão de cadastro ---
+    const userDataString = localStorage.getItem('user'); // pega dados do usuário do localStorage
+
     if (userDataString) {
-        // Converte a string JSON de volta para um objeto
-        const user = JSON.parse(userDataString);
+        try {
+            const user = JSON.parse(userDataString);
 
-        //Verifica se o objeto 'user' e a propriedade 'email' existem e se o email contém "admin"
-        if (user && user.email && user.email.includes('admin')) {
-            
-            //Cria o botão
-            const adminButton = document.createElement('a');
-            adminButton.href = 'cadastro-produtos.html'; 
-            adminButton.textContent = 'Cadastrar Produtos'; 
-            adminButton.classList.add('btn-admin'); 
+            // verifica se o usuário é admin pela 'role' (mais seguro que verificar email)
+            if (user && user.role === 'admin') {
+                const adminButton = document.createElement('a');
+                adminButton.href = '/cadastro-produtos.html'; // usa caminho relativo à raiz
+                adminButton.textContent = 'cadastrar produtos';
+                adminButton.classList.add('btn-admin'); // classe para estilização
 
-            // Adiciona o botão ao cabeçalho
-            const container = document.querySelector('.header-area'); 
-            if (container) {
-                container.appendChild(adminButton);
+                // adiciona o botão ao container do cabeçalho
+                const headerContainer = document.querySelector('.header-area'); // container específico no header
+                if (headerContainer) {
+                    headerContainer.appendChild(adminButton);
+                } else {
+                    console.warn('container do cabeçalho (.header-area) não encontrado para adicionar o botão de admin.');
+                }
             }
+        } catch (e) {
+            console.error('erro ao processar dados do usuário do localStorage:', e);
+            // opcionalmente, limpar dados corrompidos: localStorage.removeItem('user');
         }
     }
 
-    // --- LÓGICA CORRIGIDA PARA O MENU MOBILE ---
-    const menuToggle = document.getElementById('menu-toggle');
-    const menuMobileArea = document.getElementById('menu-mobile-area');
+    // --- lógica do menu mobile ---
+    const menuToggle = document.getElementById('menu-toggle');       // botão de abrir/fechar
+    const menuMobileArea = document.getElementById('menu-mobile-area'); // área do menu
 
     if (menuToggle && menuMobileArea) {
         menuToggle.addEventListener('click', function() {
-            menuMobileArea.classList.toggle('open');
+            menuMobileArea.classList.toggle('open'); // alterna a classe 'open' para exibir/ocultar
         });
+    } else {
+        console.warn('elementos do menu mobile (menu-toggle ou menu-mobile-area) não encontrados.');
     }
 
-    // Função de logout (MANTIDA)
+    // --- função de logout ---
     function logout() {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = 'index.html';
+        localStorage.removeItem('token'); // remove o token de autenticação
+        localStorage.removeItem('user');  // remove os dados do usuário
+        window.location.href = '/index.html'; // redireciona para a página de login
     }
+
+    // --- anexa a função de logout ao botão correspondente ---
+    const logoutButton = document.getElementById('logout-btn');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', function(event) {
+            event.preventDefault(); // previne a ação padrão do link, se houver
+            logout();
+        });
+    }
+    // se o botão tiver outra ID, ajuste o seletor acima.
+
 });

@@ -1,193 +1,269 @@
-# Projeto de E-commerce "Petshop - Pelos & Patas"
+# Projeto de E-commerce "Pelos & Patas"
 
 **Trabalho de Conclusão de Curso (TCC)**
 
-  - **Curso:** Análise e Desenvolvimento de Sistemas
-  - **Autora:** Ana Julia Della Vecchia
+- **Curso:** Análise e Desenvolvimento de Sistemas
+- **Autora:** Ana Julia Della Vecchia
+- **Instituição:** [Nome da sua Instituição de Ensino]
+- **Orientador(a):** [Nome do(a) Orientador(a), se aplicável]
+- **Data:** Outubro de 2025
 
------
+![Status do Projeto](https://img.shields.io/badge/status-concluído-brightgreen)
+![Linguagem](https://img.shields.io/badge/linguagem-JavaScript-yellow)
+![Node.js](https://img.shields.io/badge/Node.js-LTS-339933?logo=nodedotjs)
+![Express.js](https://img.shields.io/badge/Express.js-4.x-000000?logo=express)
+![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?logo=mysql)
 
-## 1\. Introdução
+---
 
-Este documento detalha o projeto de desenvolvimento de uma plataforma de e-commerce completa, intitulada "Pelos & Patas". O sistema foi concebido como um Trabalho de Conclusão de Curso e tem como objetivo principal a criação de uma aplicação web funcional para um pet shop, abrangendo desde a interação do cliente com os produtos até a gestão administrativa do catálogo e dos pedidos. A arquitetura do sistema é baseada em uma API RESTful (Backend) e uma aplicação de múltiplas páginas (Frontend) que consome essa API, demonstrando a separação de responsabilidades e a comunicação desacoplada entre cliente e servidor.
+## Sumário
 
------
+1. [Introdução](#1-introdução)
+2. [Arquitetura do Sistema](#2-arquitetura-do-sistema)
+3. [Tecnologias Utilizadas](#3-tecnologias-utilizadas)
+4. [Funcionalidades Implementadas](#4-funcionalidades-implementadas)
+   - [4.1 Funcionalidades do Cliente](#41-funcionalidades-do-cliente)
+   - [4.2 Funcionalidades do Administrador](#42-funcionalidades-do-administrador)
+   - [4.3 Recursos Gerais](#43-recursos-gerais)
+5. [Detalhes da Implementação](#5-detalhes-da-implementação)
+   - [5.1 Estrutura do Banco de Dados](#51-estrutura-do-banco-de-dados)
+   - [5.2 Documentação da API](#52-documentação-da-api)
+   - [5.3 Autenticação e Autorização](#53-autenticação-e-autorização)
+6. [Configuração e Execução do Ambiente](#6-configuração-e-execução-do-ambiente)
+   - [6.1 Pré-requisitos](#61-pré-requisitos)
+   - [6.2 Configuração do Banco de Dados](#62-configuração-do-banco-de-dados)
+   - [6.3 Configuração do Backend](#63-configuração-do-backend)
+   - [6.4 Execução](#64-execução)
+7. [Conclusão e Trabalhos Futuros](#7-conclusão-e-trabalhos-futuros)
+8. [Autoria](#8-autoria)
 
-## 2\. Funcionalidades Implementadas
+---
 
-A plataforma possui um conjunto robusto de funcionalidades, divididas em três categorias principais: funcionalidades para clientes, painel administrativo e recursos gerais do sistema.
+## 1. Introdução
 
-### 2.1. Funcionalidades do Cliente
+Este documento descreve o projeto "Pelos & Patas", uma aplicação web de e-commerce desenvolvida como Trabalho de Conclusão de Curso (TCC) para o curso de Análise e Desenvolvimento de Sistemas. O objetivo principal foi criar uma plataforma funcional e segura para a venda online de produtos para pet shops, aplicando conceitos de desenvolvimento web moderno, arquitetura de sistemas e segurança da informação.
 
-  - **Autenticação:** Sistema completo de cadastro (com atribuição de foto de perfil aleatória via API externa) e login de usuários.
-  - **Gerenciamento de Perfil:** O usuário pode visualizar e editar suas informações pessoais (nome e telefone) em uma página de perfil dedicada.
-  - **Catálogo de Produtos:** Listagem de produtos disponíveis com imagem, título, descrição e preço.
-  - **Detalhes do Produto:** Abertura de um modal com informações expandidas ao clicar em um produto.
-  - **Carrinho de Compras:** Sistema persistente (via `localStorage`) que permite adicionar, remover e alterar a quantidade de itens.
-  - **Checkout Multi-etapas:** Modal de finalização de compra com validação de formulário de endereço e seleção de método de pagamento.
-  - **Histórico de Pedidos:** Tela onde o usuário autenticado pode consultar o status e os detalhes de todos os seus pedidos anteriores.
+A aplicação simula um ambiente real de comércio eletrônico, permitindo a usuários cadastrar-se, navegar pelo catálogo de produtos, gerenciar um carrinho de compras, finalizar pedidos e visualizar seu histórico. A plataforma também inclui um painel administrativo integrado para gerenciamento de produtos, acessível por usuários com permissões específicas.
 
-### 2.2. Funcionalidades do Administrador
+O desenvolvimento seguiu uma abordagem de separação de interesses, com um backend robusto construído em Node.js e Express.js, expondo uma API RESTful, e um frontend interativo composto por arquivos HTML, CSS e JavaScript puros, servidos estaticamente. A segurança é tratada através de autenticação baseada em JSON Web Tokens (JWT) e armazenamento seguro de senhas.
 
-  - **Controle de Acesso:** O sistema diferencia usuários "cliente" e "admin" através de um sistema de papéis (`role`).
-  - **Autorização por Rota:** As rotas de criação e edição de produtos são protegidas e acessíveis apenas por administradores autenticados.
-  - **Criação de Produtos:** Acesso a uma página exclusiva para cadastrar novos produtos no catálogo.
-  - **Edição de Produtos:** Interface para alterar os dados de um produto existente, acessível diretamente na listagem de produtos.
+Este README serve como documentação central do projeto, detalhando sua arquitetura, tecnologias, funcionalidades, estrutura de dados, endpoints da API e instruções para configuração e execução.
 
-### 2.3. Recursos Gerais do Sistema
+---
 
-  - **Autenticação Segura:** Implementação de JSON Web Tokens (JWT) para autenticação e autorização de requisições à API.
-  - **Segurança de Senhas:** Armazenamento seguro de senhas no banco de dados utilizando hashing com a biblioteca `bcrypt`.
-  - **Contato Rápido:** Botão flutuante para iniciar uma conversa via WhatsApp, facilitando a comunicação cliente-empresa.
+## 2. Arquitetura do Sistema
 
------
+O sistema adota uma arquitetura cliente-servidor desacoplada, composta por três camadas principais:
 
-## 3\. Arquitetura do Sistema
+\+---------------------+       +------------------------+          +-------------------+
+|      Frontend       |        |    Backend (API REST)  |          |  Banco de Dados   |
+| (HTML, CSS, JS puros|        | (Node.js + Express.js) |          |      (MySQL)      |
+|  Servido Estático)  | \<--\> |   (localhost:3030)     | \<--\>   | (Servidor de BD)  |
+\+---------------------+       +------------------------+          +-------------------+
 
-O projeto foi desenvolvido seguindo uma arquitetura desacoplada, separando as responsabilidades do Frontend e do Backend.
 
-```
-+----------------+      +-----------------------+      +-------------------+
-|    Frontend    |      |     Backend (API)     |      |  Banco de Dados   |
-| (HTML, CSS, JS)|      | (Node.js + Express.js)|      |      (MySQL)      |
-|  (no Navegador)| <--> |   (localhost:3030)    | <--> | (Servidor de BD)  |
-+----------------+      +-----------------------+      +-------------------+
-```
+- **Frontend:** Consiste em arquivos estáticos (HTML, CSS, JavaScript) servidos diretamente pelo servidor Express.js através do middleware `express.static`. Toda a interatividade e comunicação com o backend ocorre via requisições assíncronas (`fetch`) à API RESTful, utilizando JSON como formato de dados. O estado da sessão do usuário (autenticação) e o carrinho de compras são gerenciados no lado do cliente via `localStorage`.
+- **Backend:** Uma API RESTful desenvolvida em Node.js com o framework Express.js. É responsável por toda a lógica de negócios, validação de dados, autenticação/autorização de usuários (via JWT), processamento de pedidos e interação com o banco de dados.
+- **Banco de Dados:** Utiliza o sistema de gerenciamento de banco de dados relacional MySQL para persistência dos dados de usuários, produtos, pedidos e itens de pedidos.
 
-  - **Frontend:** Uma aplicação de múltiplas páginas (MPA) servida de forma estática. A interação com os dados é feita dinamicamente através de chamadas assíncronas (`fetch`) à API do backend.
-  - **Backend:** Uma API RESTful construída com Node.js e Express.js. É responsável por toda a lógica de negócio, interação com o banco de dados e segurança (autenticação e autorização).
-  - **Banco de Dados:** Um banco de dados relacional MySQL, responsável pela persistência dos dados de usuários, produtos e pedidos.
+---
 
------
+## 3. Tecnologias Utilizadas
 
-## 4\. Tecnologias Utilizadas
+- **Linguagem Principal:** JavaScript (ES6+ Padrão)
+- **Frontend:**
+  - HTML5 (Estrutura Semântica)
+  - CSS3 (Estilização e Layout Responsivo)
+  - JavaScript Vanilla (Manipulação do DOM, Requisições `fetch`, Gerenciamento de Estado Local)
+- **Backend:**
+  - Node.js (Ambiente de Execução JavaScript no Servidor)
+  - Express.js (Framework Web para Gerenciamento de Rotas e Middlewares)
+  - `mysql2/promise` (Driver MySQL com suporte a Promises/Async/Await)
+  - `bcrypt` (Hashing Seguro de Senhas)
+  - `jsonwebtoken` (Geração e Verificação de Tokens JWT)
+  - `dotenv` (Gerenciamento de Variáveis de Ambiente)
+  - `cors` (Middleware para Habilitar Cross-Origin Resource Sharing)
+- **Banco de Dados:**
+  - MySQL (Sistema de Gerenciamento de Banco de Dados Relacional)
+- **Controle de Versão:**
+  - Git & GitHub (ou similar)
 
-  - **Frontend**
+---
 
-      - HTML
-      - CSS
-      - JS
+## 4. Funcionalidades Implementadas
 
-  - **Backend**
+### 4.1. Funcionalidades do Cliente
+- **Autenticação:** Cadastro de novos usuários (com foto de perfil aleatória via API `dog.ceo`) e Login (recebendo token JWT).
+- **Gerenciamento de Perfil:** Visualização e Edição de dados pessoais (usuário, email, telefone).
+- **Navegação de Produtos:** Listagem de produtos em formato de cards.
+- **Detalhes do Produto:** Página dedicada para cada produto, acessível via URL com o ID do produto, exibindo informações completas.
+- **Carrinho de Compras:** Adição, remoção e ajuste de quantidade de produtos, persistido no `localStorage`.
+- **Checkout:** Processo de finalização de compra em múltiplas etapas (endereço, pagamento) dentro de um modal, com validação de login prévio.
+- **Histórico de Pedidos:** Página para visualização dos pedidos anteriores do usuário autenticado.
+- **Contato:** Botão flutuante para iniciar conversa via WhatsApp.
 
-      - NODE.JS
-      - EXPRESS
+### 4.2. Funcionalidades do Administrador
+- **Diferenciação de Papéis:** Sistema de `role` ('cliente' vs 'admin') definido no banco de dados e incluído no token JWT.
+- **Autorização:** Rotas da API para criação e edição de produtos protegidas por middleware que verifica o token e a `role` de administrador.
+- **Gerenciamento de Produtos:**
+  - Botão "Cadastrar Produtos" visível apenas para administradores na página inicial.
+  - Acesso à página de cadastro de novos produtos.
+  - Botão "Editar" visível em cada card de produto na listagem principal, abrindo um modal para edição.
 
-  - **Banco de Dados**
+### 4.3. Recursos Gerais
+- **Segurança:** Autenticação via JWT com expiração, hashing de senhas com bcrypt, proteção de rotas por middleware.
+- **URLs de Detalhes:** Páginas de detalhes de produto acessíveis via ID na URL (ex: `/produto-detalhe.html?id=123`).
+- **Persistência Local:** Uso do `localStorage` para armazenar o token JWT, dados básicos do usuário e o carrinho de compras.
+- **Feedback ao Usuário:** Uso de `alert()` e notificações (toast) para informar sobre sucesso ou erro em operações (ex: adição ao carrinho, atualização de perfil).
 
-      - MYSQL
+---
 
-  - **Autenticação**
+## 5. Detalhes da Implementação
 
-      - JWTOKEN
+### 5.1. Estrutura do Banco de Dados
 
------
-
-## 5\. Estrutura do Banco de Dados
-
-O banco de dados é composto por quatro tabelas principais, relacionadas para garantir a integridade dos dados.
+O esquema relacional é composto por quatro tabelas principais:
 
 ```sql
+-- Tabela de Usuários
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     username VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL, -- Armazena o hash bcrypt
     phone VARCHAR(20),
     profile_image_url VARCHAR(255) NULL,
-    role VARCHAR(10) NOT NULL DEFAULT 'cliente'
+    role VARCHAR(10) NOT NULL DEFAULT 'cliente' CHECK (role IN ('cliente', 'admin')) -- Papel do usuário
 );
 
+-- Tabela de Produtos
 CREATE TABLE products (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    image_url VARCHAR(255),
     title VARCHAR(255) NOT NULL,
+    -- slug VARCHAR(255) NOT NULL UNIQUE, -- Removido
     description TEXT NOT NULL,
-    price DECIMAL(10, 2) NOT NULL
+    image_url VARCHAR(255),
+    price DECIMAL(10, 2) NOT NULL CHECK (price >= 0)
 );
 
+-- Tabela de Pedidos
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    total_price DECIMAL(10, 2) NOT NULL,
-    status VARCHAR(50) NOT NULL DEFAULT 'Aguardando Pagamento',
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    total_price DECIMAL(10, 2) NOT NULL CHECK (total_price >= 0),
+    status VARCHAR(50) NOT NULL DEFAULT 'aguardando pagamento',
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Tabela de Itens do Pedido (Relacionamento N:N entre Pedidos e Produtos)
 CREATE TABLE order_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
     product_id INT NOT NULL,
-    quantity INT NOT NULL,
-    price_at_purchase DECIMAL(10, 2) NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES orders(id),
-    FOREIGN KEY (product_id) REFERENCES products(id)
+    quantity INT NOT NULL CHECK (quantity > 0),
+    price_at_purchase DECIMAL(10, 2) NOT NULL CHECK (price_at_purchase >= 0),
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT
 );
 ```
 
------
+### 5.2. Documentação da API
 
-## 6\. Documentação da API
-
-A comunicação entre o frontend e o backend é feita através dos seguintes endpoints.
+Todos os endpoints da API são prefixados com `/api`.
 
 | Método | Rota                  | Descrição                                         | Proteção      |
 | :----- | :-------------------- | :-------------------------------------------------- | :------------ |
-| `POST` | `/api/auth/login`     | Autentica um usuário e retorna um token JWT.        | Pública       |
-| `POST` | `/api/auth/cadastro`  | Cria um novo usuário.                               | Pública       |
-| `PUT`  | `/api/users/:id`      | Atualiza o perfil de um usuário.                    | `verifyToken` |
-| `GET`  | `/api/products`       | Retorna a lista de todos os produtos.               | Pública       |
-| `POST` | `/api/products`       | Adiciona um novo produto.                           | `isAdmin`     |
-| `PUT`  | `/api/products/:id`   | Atualiza um produto existente.                      | `isAdmin`     |
-| `POST` | `/api/orders`         | Salva um novo pedido no banco de dados.             | `verifyToken` |
-| `GET`  | `/api/orders/user`    | Retorna o histórico de pedidos do usuário logado.   | `verifyToken` |
+| `POST` | `/auth/login`         | Autentica um usuário e retorna token JWT e dados.   | Pública       |
+| `POST` | `/auth/cadastro`      | Registra um novo usuário.                           | Pública       |
+| `PUT`  | `/users/:id`          | Atualiza o perfil do usuário (nome, email, fone). | `verifyToken` |
+| `GET`  | `/products`           | Lista todos os produtos.                          | Pública       |
+| `GET`  | `/products/:id`       | Busca detalhes de um produto pelo ID numérico.      | Pública       |
+| `POST` | `/products`           | Cria um novo produto.                             | `isAdmin`     |
+| `PUT`  | `/products/:id`       | Atualiza um produto existente.                      | `isAdmin`     |
+| `POST` | `/orders`             | Cria um novo pedido a partir do carrinho.         | `verifyToken` |
+| `GET`  | `/orders/user`        | Lista os pedidos do usuário autenticado.          | `verifyToken` |
+
+### 5.3. Autenticação e Autorização
+
+  - **Autenticação:** Realizada via `POST /api/auth/login`. Em caso de sucesso, um JWT é gerado contendo `userId` e `role`, assinado com um segredo (`JWT_SECRET`) definido nas variáveis de ambiente, e com tempo de expiração de 1 hora. O token é enviado ao cliente e armazenado no `localStorage`.
+  - **Autorização:** Para cada requisição a endpoints protegidos, o cliente deve enviar o token no cabeçalho `Authorization: Bearer <token>`. O middleware `verifyToken` intercepta a requisição, valida a assinatura e a expiração do token. Se válido, extrai o payload (`userId`, `role`) e o anexa ao objeto `req.user`. O middleware `isAdmin` subsequentemente verifica se `req.user.role` é igual a `'admin'` para rotas administrativas.
 
 -----
 
-## 7\. Configuração do Ambiente e Execução
+## 6\. Configuração e Execução do Ambiente
 
-Siga os passos abaixo para executar o projeto localmente.
+### 6.1. Pré-requisitos
 
-### 7.1. Pré-requisitos
+  - Node.js (versão 18 ou superior recomendada)
+  - Servidor MySQL (versão 5.7 ou superior)
+  - Git (para clonar o repositório)
 
-  - **Node.js:** Versão 18 ou superior.
-  - **MySQL:** Instância local ou remota acessível.
+### 6.2. Configuração do Banco de Dados
 
-### 7.2. Configuração do Banco de Dados
+1.  Assegure que o servidor MySQL esteja em execução.
+2.  Crie um banco de dados dedicado para a aplicação (ex: `pelos_patas_tcc`).
+3.  As tabelas podem ser criadas manualmente executando o SQL da Seção 5.1 ou automaticamente através da rota de setup (Passo 6.4).
 
-1.  Crie um banco de dados no seu servidor MySQL.
-2.  Para criar e popular as tabelas, você pode executar o script SQL da seção 5 ou utilizar a rota de setup do backend após a configuração.
+### 6.3. Configuração do Backend
 
-### 7.3. Configuração do Backend
-
-1.  Navegue até a pasta do backend e instale as dependências:
+1.  Clone o repositório do projeto para sua máquina local.
+2.  Navegue até o diretório raiz do projeto backend via terminal.
+3.  Instale as dependências do Node.js:
     ```bash
     npm install
     ```
-2.  Crie um arquivo `.env` na raiz do projeto backend e preencha com suas credenciais:
+4.  Crie um arquivo chamado `.env` na raiz do projeto backend.
+5.  Copie o conteúdo abaixo para o arquivo `.env` e substitua os valores pelos da sua configuração:
     ```env
+    # Configuração do Banco de Dados
     DB_HOST=localhost
-    DB_USER=root
-    DB_PASSWORD=sua_senha_do_banco
-    DB_NAME=petshop
+    DB_USER=seu_usuario_mysql
+    DB_PASSWORD=sua_senha_mysql
+    DB_NAME=nome_do_seu_banco_de_dados
+
+    # Segredo para assinatura do JWT (gere uma string longa e aleatória)
     JWT_SECRET=crie_uma_chave_secreta_longa_e_aleatoria
+
+    # Porta do Servidor (opcional, padrão 3030)
+    PORT=3030
     ```
 
-### 7.4. Execução
+### 6.4. Execução
 
-1.  Inicie o servidor backend:
+1.  **Iniciar o Servidor Backend:** No terminal, dentro da pasta do backend, execute:
+
     ```bash
     npm start
     ```
-2.  O servidor estará rodando em `http://localhost:3030`.
-3.  Opcionalmente, acesse `http://localhost:3030/setup-database` uma única vez para apagar, recriar e popular o banco de dados com dados de teste.
-4.  Abra o arquivo `index.html` (localizado na pasta `public`) em seu navegador para acessar a aplicação. Recomenda-se o uso da extensão "Live Server" do VS Code para evitar conflitos de CORS.
+
+    O servidor iniciará na porta definida (padrão 3030).
+
+2.  **(Opcional) Setup Inicial do Banco:** Abra seu navegador e acesse a rota `http://localhost:3030/setup-database`. Isso irá apagar todas as tabelas existentes (se houver), recriá-las e inserir dados de teste (um usuário admin e um cliente). **Atenção:** Use esta rota apenas em ambiente de desenvolvimento.
+
+3.  **Acessar a Aplicação Frontend:** Abra o arquivo `index.html` localizado dentro da pasta `public` do projeto em seu navegador web. Alternativamente, acesse `http://localhost:3030/` que, devido à configuração do `express.static`, servirá o `index.html` automaticamente. Recomenda-se o uso da extensão "Live Server" no VS Code ou similar para desenvolvimento frontend, apontando para a pasta `public`.
+
+-----
+
+## 7\. Conclusão e Trabalhos Futuros
+
+O projeto "Pelos & Patas" cumpriu com sucesso os objetivos propostos, resultando em uma aplicação web de e-commerce funcional, segura e com uma arquitetura bem definida. Foram aplicados conhecimentos em desenvolvimento Full Stack JavaScript, modelagem de banco de dados relacional, implementação de API RESTful, e mecanismos de autenticação e autorização modernos.
+
+Como trabalhos futuros, sugere-se:
+
+  - Integração com um gateway de pagamento real.
+  - Desenvolvimento de um painel administrativo mais completo (gerenciamento de usuários, visualização detalhada de pedidos).
+  - Implementação de testes automatizados (unitários, integração, e2e).
+  - Funcionalidades adicionais como busca de produtos, filtros e paginação.
+  - Otimização de performance e segurança (rate limiting, validação de entrada mais robusta).
+  - Processo de deploy para um ambiente de produção (ex: Heroku, AWS, Vercel).
 
 -----
 
 ## 8\. Autoria
 
-Desenvolvido por **Ana Julia Della Vecchia**.
+Desenvolvido por **Ana Julia Della Vecchia** como requisito parcial para obtenção do título de Tecnólogo em Análise e Desenvolvimento de Sistemas.
 
-  [Github](https://www.github.com/AnaVecchia) 
+  - **GitHub:** `[Link para o seu GitHub]`
+  - **LinkedIn:** `[Link para o seu LinkedIn]`
+

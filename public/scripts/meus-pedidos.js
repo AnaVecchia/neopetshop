@@ -1,11 +1,10 @@
+// explicação spread operator: o operador '...' (spread) expande elementos de iteráveis (como arrays) ou propriedades de objetos, tipo um for each single line
 document.addEventListener('DOMContentLoaded', function() {
     const ordersListContainer = document.getElementById('orders-list');
 
-    // Função auxiliar para realizar requisições autenticadas
+    // envia requisições à API anexando o token JWT, se disponível
     async function fetchWithAuth(url, options = {}) {
-        // CORREÇÃO: O token é lido do localStorage a cada chamada
-        const token = localStorage.getItem('token');
-
+        const token = localStorage.getItem('token'); // lê o token atual a cada chamada
         const headers = {
             'Content-Type': 'application/json',
             ...options.headers,
@@ -18,57 +17,64 @@ document.addEventListener('DOMContentLoaded', function() {
         return fetch(url, { ...options, headers });
     }
 
-    // Função principal para buscar e renderizar os pedidos
+    // busca e exibe o histórico de pedidos do usuário logado
     async function loadOrders() {
-        // A verificação do token agora é feita dentro do fetchWithAuth,
-        // mas podemos manter uma verificação inicial para feedback rápido.
-        if (!localStorage.getItem('token')) {
-            ordersListContainer.innerHTML = '<h2>Acesso negado. Você precisa estar logado para ver seus pedidos.</h2>';
+        if (!ordersListContainer) {
+            console.error('elemento #orders-list não encontrado no DOM.');
             return;
         }
 
+        // verifica se o usuário está logado antes de fazer a requisição
+        if (!localStorage.getItem('token')) {
+            ordersListContainer.innerHTML = '<h2>acesso negado. você precisa estar logado para ver seus pedidos.</h2>';
+            return;
+        }
+
+        // indica estado de carregamento (opcional)
+        ordersListContainer.innerHTML = '<p>carregando pedidos...</p>';
+
         try {
+            // busca os pedidos usando a função autenticada
             const response = await fetchWithAuth('http://localhost:3030/api/orders/user');
-            
             const data = await response.json();
 
+            // verifica se a API retornou erro
             if (!response.ok) {
-                // Lança um erro com a mensagem vinda da API
-                throw new Error(data.message || `Erro ${response.status}`);
+                throw new Error(data.message || `erro ${response.status} ao buscar pedidos.`);
             }
 
             const orders = data;
 
-            if (orders.length === 0) {
-                ordersListContainer.innerHTML = '<p>Você ainda não fez nenhum pedido.</p>';
+            // verifica se não há pedidos
+            if (!orders || orders.length === 0) {
+                ordersListContainer.innerHTML = '<p>você ainda não fez nenhum pedido.</p>';
                 return;
             }
 
-            ordersListContainer.innerHTML = ''; 
+            ordersListContainer.innerHTML = ''; // limpa o container antes de adicionar os cards
 
+            // cria e adiciona o HTML para cada pedido
             orders.forEach(order => {
+                // formata data e preço
                 const orderDate = new Date(order.order_date).toLocaleDateString('pt-BR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
+                    day: '2-digit', month: '2-digit', year: 'numeric'
                 });
-
                 const formattedPrice = new Intl.NumberFormat('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL'
-                }).format(order.total_price);
+                    style: 'currency', currency: 'BRL'
+                }).format(order.total_price || 0); // fallback para preço nulo/inválido
 
-                const statusClass = order.status.toLowerCase().includes('aguardando') ? 'status-aguardando' : '';
+                const statusClass = order.status && order.status.toLowerCase().includes('aguardando') ? 'status-aguardando' : '';
 
+                // HTML do card do pedido
                 const orderCardHTML = `
                     <div class="order-card">
                         <div class="order-header">
-                            <h3>Pedido #${order.id}</h3>
-                            <span class="order-status ${statusClass}">${order.status}</span>
+                            <h3>pedido #${order.id}</h3>
+                            <span class="order-status ${statusClass}">${order.status || 'Status desconhecido'}</span>
                         </div>
                         <div class="order-details">
-                            <p><strong>Data:</strong> ${orderDate}</p>
-                            <p><strong>Total:</strong> ${formattedPrice}</p>
+                            <p><strong>data:</strong> ${orderDate}</p>
+                            <p><strong>total:</strong> ${formattedPrice}</p>
                         </div>
                     </div>
                 `;
@@ -76,10 +82,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
         } catch (error) {
-            console.error('Erro ao buscar pedidos:', error);
-            ordersListContainer.innerHTML = `<p style="color: red;">Não foi possível carregar seus pedidos. Motivo: ${error.message}</p>`;
+            // exibe mensagem de erro no container
+            console.error('erro ao buscar pedidos:', error);
+            ordersListContainer.innerHTML = `<p style="color: red;">não foi possível carregar seus pedidos. motivo: ${error.message}</p>`;
         }
     }
 
+    // executa a função principal ao carregar a página
     loadOrders();
 });

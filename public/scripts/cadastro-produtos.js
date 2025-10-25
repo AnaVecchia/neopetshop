@@ -1,15 +1,9 @@
 document.addEventListener('DOMContentLoaded', function () {
     const productForm = document.getElementById('product-form');
 
-    // Função auxiliar para realizar requisições autenticadas
+    // envia requisições à API anexando o token JWT, se disponível
     async function fetchWithAuth(url, options = {}) {
         const token = localStorage.getItem('token');
-
-        // --- LINHA DE DEBUG ---
-        console.log('Tentando fazer requisição para:', url);
-        console.log('Token recuperado do localStorage:', token);
-        // --------------------
-
         const headers = {
             'Content-Type': 'application/json',
             ...options.headers,
@@ -17,22 +11,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
-            console.log('Cabeçalho Authorization sendo enviado.');
-        } else {
-            // --- AVISO DE DEBUG ---
-            console.error('ALERTA: NENHUM TOKEN ENCONTRADO NO LOCALSTORAGE!');
         }
+        // removemos os logs de debug do token
 
         return fetch(url, { ...options, headers });
     }
 
+    // lida com a submissão do formulário de cadastro de produto
     productForm.addEventListener('submit', async function (event) {
-        event.preventDefault();
+        event.preventDefault(); // previne recarregamento da página
 
         const submitButton = this.querySelector('button[type="submit"]');
-        submitButton.disabled = true;
+        submitButton.disabled = true; // desabilita botão durante envio
         submitButton.textContent = 'Cadastrando...';
 
+        // coleta dados do formulário
         const productData = {
             title: document.getElementById('title').value,
             description: document.getElementById('description').value,
@@ -41,26 +34,29 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         try {
+            // envia dados para a API usando POST autenticado
             const response = await fetchWithAuth('http://localhost:3030/api/products', {
                 method: 'POST',
                 body: JSON.stringify(productData)
             });
 
-            const data = await response.json();
+            const data = await response.json(); // processa a resposta JSON
 
+            // verifica se a API retornou um erro
             if (!response.ok) {
-                // Lança um erro que será capturado pelo bloco catch
                 throw new Error(data.message || 'Falha ao cadastrar o produto.');
             }
 
-            alert(data.message);
-            productForm.reset();
+            // sucesso
+            alert(data.message || 'Produto cadastrado com sucesso!');
+            productForm.reset(); // limpa o formulário
 
         } catch (error) {
-            console.error('Erro na requisição:', error);
+            // falha na requisição ou erro da API
+            console.error('Erro na requisição de cadastro:', error);
             alert(`Ocorreu um erro: ${error.message}`);
         } finally {
-            // Reabilita o botão, independentemente do resultado
+            // reabilita o botão, ocorrendo sucesso ou falha
             submitButton.disabled = false;
             submitButton.textContent = 'Cadastrar Produto';
         }

@@ -9,7 +9,7 @@ const pool = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
-    multipleStatements: true // Necessário para a rota de setup
+    multipleStatements: true 
 });
 
 module.exports = pool;

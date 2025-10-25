@@ -1,273 +1,328 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const menuToggle = document.getElementById('menu-toggle');
-    const menuNav = document.getElementById('menu-nav');
+    // seletores de elementos do DOM
+    const container = document.querySelector('.products-area');
+    const detailsModal = document.getElementById('product-modal'); // modal de detalhes (será removido/ignorado)
+    const editModal = document.getElementById('edit-product-modal');
+    const editForm = document.getElementById('edit-product-form');
+    const menuToggle = document.getElementById('menu-toggle');     // menu mobile
+    const menuNav = document.getElementById('menu-nav');           // menu mobile
 
-    if (menuToggle && menuNav) {
-        menuToggle.addEventListener('click', () => {
-            menuNav.classList.toggle('open');
-        });
-    }
+    // verifica se elementos essenciais existem
+    if (!container || !editModal || !editForm) {
+        console.error('erro: elementos essenciais da página de produtos ou modal de edição não encontrados.');
+        return; // interrompe se elementos cruciais faltarem
+    }
 
-    // --- INÍCIO DO SISTEMA DE NOTIFICAÇÃO ---
+    let allProducts = []; // cache local dos produtos buscados
+    let toastTimer = null; // timer para a notificação
 
-    const toastElement = document.createElement('div');
-    toastElement.id = 'custom-toast';
-    document.body.appendChild(toastElement);
-    let toastTimer = null;
+    // --- funções auxiliares ---
 
-    function showNotification(message, type = 'info') {
-        if (toastTimer) {
-            clearTimeout(toastTimer);
-        }
+    // envia requisições à API anexando o token JWT
+    async function fetchWithAuth(url, options = {}) {
+        const token = localStorage.getItem('token');
+        const headers = {
+            'Content-Type': 'application/json',
+            ...options.headers,
+        };
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        return fetch(url, { ...options, headers });
+    }
 
-        toastElement.textContent = message;
-        toastElement.className = ''; // Reseta classes
+    // verifica se o usuário logado tem a role 'admin'
+    function isAdmin() {
+        const userDataString = localStorage.getItem('user');
+        if (!userDataString) return false;
+        try {
+            const user = JSON.parse(userDataString);
+            return user?.role === 'admin'; // usa optional chaining e verifica a role
+        } catch (e) {
+            console.error('erro ao ler dados do usuário:', e);
+            return false;
+        }
+    }
 
-        // === DURAÇÕES AUMENTADAS AQUI ===
-        let duration = 6000; // 6 segundos para info e success (era 4000)
+    // formata um número como moeda brasileira (BRL)
+    function formatCurrency(value) {
+        const numericValue = Number(value);
+        if (isNaN(numericValue)) return 'R$ --,--';
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(numericValue);
+    }
 
-        if (type === 'cart') {
-            toastElement.classList.add('cart');
-            toastElement.textContent = `${message} (Clique para ver o carrinho)`;
-            duration = 10000; // 10 segundos para carrinho (era 7000)
-        } else if (type === 'success') {
-            toastElement.classList.add('success');
-        } else if (type === 'error') {
-            toastElement.classList.add('error');
-            duration = 10000; // 10 segundos para erro (era 7000)
-        } else {
-            toastElement.classList.add('info'); // Classe 'info' adicionada para estilização opcional
-        }
+    // exibe uma notificação (toast) na tela
+    function showNotification(message, type = 'info') {
+        const toastElement = document.getElementById('custom-toast');
+        if (!toastElement) { // cria o elemento se não existir
+            const newToast = document.createElement('div');
+            newToast.id = 'custom-toast';
+            document.body.appendChild(newToast);
+            return showNotification(message, type); // chama novamente com o elemento criado
+        }
 
-        toastElement.classList.add('show');
+        if (toastTimer) clearTimeout(toastTimer); // cancela timer anterior
 
-        toastTimer = setTimeout(() => {
-            toastElement.classList.remove('show');
-            toastTimer = null;
-        }, duration);
-    }
+        toastElement.textContent = message;
+        toastElement.className = 'show'; // reseta e mostra
 
-    toastElement.addEventListener('click', () => {
-        if (toastElement.classList.contains('cart')) {
-            window.location.href = 'carrinho.html';
-            if (toastTimer) clearTimeout(toastTimer);
-            toastElement.classList.remove('show');
-        }
-    });
-    // --- FIM DO SISTEMA DE NOTIFICAÇÃO ---
+        let duration = 6000; // duração padrão (6s)
 
+        // aplica classe e ajusta duração com base no tipo
+        switch (type) {
+            case 'cart':
+                toastElement.classList.add('cart');
+                toastElement.textContent = `${message} (clique para ver o carrinho)`;
+                duration = 10000; // 10s
+                break;
+            case 'success':
+                toastElement.classList.add('success');
+                duration = 6000; // 6s
+                break;
+            case 'error':
+                toastElement.classList.add('error');
+                duration = 10000; // 10s
+                break;
+            default: // 'info'
+                toastElement.classList.add('info');
+        }
 
-    // --- LÓGICA EXISTENTE DOS PRODUTOS ---
-    const container = document.querySelector('.products-area');
-    const detailsModal = document.getElementById('product-modal');
-    const editModal = document.getElementById('edit-product-modal');
-    const editForm = document.getElementById('edit-product-form');
+        // define timer para esconder a notificação
+        toastTimer = setTimeout(() => {
+            toastElement.classList.remove('show');
+            toastTimer = null;
+        }, duration);
+    }
 
-    if (!container || !detailsModal || !editModal || !editForm) {
-        console.error('Um ou mais elementos DOM essenciais não foram encontrados.');
-        return;
-    }
+    // adiciona listener ao toast (se existir) para ação de clique (ir ao carrinho)
+    function setupToastListener() {
+        const toastElement = document.getElementById('custom-toast');
+        if (toastElement) {
+            toastElement.addEventListener('click', () => {
+                if (toastElement.classList.contains('cart')) {
+                    window.location.href = '/carrinho.html';
+                    if (toastTimer) clearTimeout(toastTimer); // fecha ao clicar
+                    toastElement.classList.remove('show');
+                }
+            });
+        } else {
+             console.warn('elemento #custom-toast não encontrado para adicionar listener.');
+        }
+    }
 
-    let allProducts = [];
+    // --- lógica principal de produtos ---
 
-    async function fetchWithAuth(url, options = {}) {
-        const token = localStorage.getItem('token');
-        const headers = {
-            'Content-Type': 'application/json',
-            ...options.headers,
-        };
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-        return fetch(url, { ...options, headers });
-    }
+    // busca a lista de produtos da API
+    async function fetchProducts() {
+        // não precisa de autenticação para listar produtos
+        const response = await fetch('http://localhost:3030/api/products');
+        if (!response.ok) {
+            let errorMsg = 'falha ao buscar os produtos da API.';
+            try {
+                const errorData = await response.json();
+                errorMsg = errorData.message || errorMsg;
+            } catch(e) {/* ignora */}
+            throw new Error(errorMsg);
+        }
+        return await response.json();
+    }
 
-    function isAdmin() {
-        const userDataString = localStorage.getItem('user');
-        if (!userDataString) return false;
-        try {
-            const user = JSON.parse(userDataString);
-            return user && user.role === 'admin';
-        } catch (e) {
-            return false;
-        }
-    }
+    // renderiza os cards de produto no container
+    function renderProducts(products) {
+        if (!container) return; // guarda de segurança
+        container.innerHTML = ''; // limpa container
+        const userIsAdmin = isAdmin(); // verifica permissão uma vez
 
-    async function init() {
-        try {
-            const products = await fetchProducts();
-            allProducts = products;
-            renderProducts(allProducts);
-        } catch (error) {
-            console.error('Erro ao inicializar:', error);
-            container.innerHTML = `<p style="color: red;">${error.message}</p>`;
-        }
-    }
+        if (!products || products.length === 0) {
+            container.innerHTML = '<p>nenhum produto encontrado.</p>';
+            return;
+        }
 
-    async function fetchProducts() {
-        const response = await fetch('http://localhost:3030/api/products');
-        if (!response.ok) {
-            throw new Error('Falha ao buscar os produtos da API.');
-        }
-        return await response.json();
-    }
+        products.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'products-card';
+            card.dataset.productId = product.id; // armazena ID no elemento
 
-    function renderProducts(products) {
-        container.innerHTML = '';
-        const userIsAdmin = isAdmin();
+            const imageUrl = product.image_url || 'https://via.placeholder.com/165x165?text=Sem+Imagem';
+            const formattedPrice = formatCurrency(product.price);
 
-        products.forEach(product => {
-            const card = document.createElement('div');
-            card.className = 'products-card';
-            card.dataset.productId = product.id;
+            // botão de editar visível apenas para admin
+            const adminButtonHTML = userIsAdmin ?
+                `<button class="edit-btn" data-product-id="${product.id}" aria-label="editar produto">editar ✏️</button>` : '';
 
-            const imageUrl = product.image_url || 'https://via.placeholder.com/165x165?text=Sem+Imagem';
-            const formattedPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price);
+            // html interno do card
+            card.innerHTML = `
+                <div class="products-card--image">
+                    <img src="${imageUrl}" alt="${product.title || 'produto sem título'}">
+                </div>
+                <div class="products-card--info">
+                    <h4>${product.title || 'produto sem título'}</h4>
+                    <p class="small-text">${(product.description || '').substring(0, 50)}...</p>
+                </div>
+                <div class="products-card--footer">
+                    <h4 class="orange-text bold-text">${formattedPrice}</h4>
+                    <div class="button-group">
+                        ${adminButtonHTML}
+                        <button class="add-to-cart-btn" data-product-id="${product.id}" aria-label="adicionar ao carrinho">adicionar 🛒</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
 
-            const adminButtonHTML = userIsAdmin ?
-                `<button class="edit-btn" data-product-id="${product.id}">Editar ✏️</button>` : '';
+    // adiciona um produto ao carrinho (localStorage)
+    function addToCart(productId) {
+        const productToAdd = allProducts.find(p => p.id === parseInt(productId));
+        if (!productToAdd) {
+            showNotification('erro: produto não encontrado para adicionar ao carrinho.', 'error');
+            return;
+        }
 
-            card.innerHTML = `
-                <div class="products-card--image">
-                    <img src="${imageUrl}" alt="${product.title}">
-                </div>
-                <div class="products-card--info">
-                    <h4>${product.title}</h4>
-                    <p class="small-text">${product.description.substring(0, 50)}...</p>
-                </div>
-                <div class="products-card--footer">
-                    <h4 class="orange-text bold-text">${formattedPrice}</h4>
-                    <div class="button-group">
-                        ${adminButtonHTML}
-                        <button class="add-to-cart-btn" data-product-id="${product.id}">Adicionar 🛒</button>
-                    </div>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-    }
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const existingItemIndex = cart.findIndex(item => item.id === parseInt(productId));
 
-    function addToCart(productId) {
-        const productToAdd = allProducts.find(p => p.id === parseInt(productId));
-        if (!productToAdd) return;
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        const existingItem = cart.find(item => item.id === parseInt(productId));
-        if (existingItem) {
-            existingItem.quantity++;
-        } else {
-            cart.push({ ...productToAdd, quantity: 1 });
-        }
-        localStorage.setItem('cart', JSON.stringify(cart));
-        
-        showNotification(`"${productToAdd.title}" foi adicionado ao carrinho!`, 'cart');
-    }
+        if (existingItemIndex > -1) {
+            cart[existingItemIndex].quantity = (cart[existingItemIndex].quantity || 0) + 1; // incrementa quantidade
+        } else {
+            // adiciona novo item com dados essenciais
+            cart.push({
+                id: productToAdd.id,
+                title: productToAdd.title,
+                price: productToAdd.price,
+                image_url: productToAdd.image_url,
+                quantity: 1
+            });
+        }
+        localStorage.setItem('cart', JSON.stringify(cart)); // salva carrinho
+        showNotification(`"${productToAdd.title || 'produto'}" adicionado ao carrinho!`, 'cart'); // notifica usuário
+    }
 
-    function showDetailsModal(productId) {
-        const product = allProducts.find(p => p.id === parseInt(productId));
-        if (!product) return;
-        const imageUrl = product.image_url || 'https://via.placeholder.com/300x300?text=Sem+Imagem';
-        const formattedPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price);
+    // --- lógica dos modais (apenas edição) ---
 
-        detailsModal.innerHTML = `
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <img src="${imageUrl}" alt="${product.title}" class="modal-image">
-                <div class="modal-info">
-                    <h2>${product.title}</h2>
-                    <h4>${product.description}</h4>
-                    <h2 class="modal-price">${formattedPrice}</h2>
-                    <button class="add-to-cart-btn-modal" data-product-id="${product.id}"><h5>Adicionar ao Carrinho 🛒</h5></button>
-                </div>
-            </div>
-        `;
-        detailsModal.classList.add('show');
-    }
+    // preenche e exibe o modal de edição
+    function showEditModal(productId) {
+        const productToEdit = allProducts.find(p => p.id === parseInt(productId));
+        if (!productToEdit || !editForm) return;
 
-    function hideDetailsModal() {
-        detailsModal.classList.remove('show');
-    }
+        // preenche o formulário com dados atuais
+        editForm.querySelector('#edit-product-id').value = productToEdit.id;
+        editForm.querySelector('#edit-title').value = productToEdit.title || '';
+        editForm.querySelector('#edit-description').value = productToEdit.description || '';
+        editForm.querySelector('#edit-price').value = productToEdit.price || '';
+        editForm.querySelector('#edit-image_url').value = productToEdit.image_url || '';
 
-    function showEditModal(productId) {
-        const productToEdit = allProducts.find(p => p.id === parseInt(productId));
-        if (!productToEdit) return;
+        if (editModal) editModal.classList.add('show'); // exibe modal
+    }
 
-        document.getElementById('edit-product-id').value = productToEdit.id;
-        document.getElementById('edit-title').value = productToEdit.title;
-        document.getElementById('edit-description').value = productToEdit.description;
-        document.getElementById('edit-price').value = productToEdit.price;
-        document.getElementById('edit-image_url').value = productToEdit.image_url || '';
+    // esconde o modal de edição
+    function hideEditModal() {
+        if (editModal) editModal.classList.remove('show');
+    }
 
-        editModal.classList.add('show');
-    }
+    // --- inicialização e event listeners ---
 
-    function hideEditModal() {
-        editModal.classList.remove('show');
-    }
+    // inicializa a página buscando e renderizando produtos
+    async function initializePage() {
+        try {
+            const products = await fetchProducts();
+            allProducts = products; // armazena no cache local
+            renderProducts(allProducts);
+        } catch (error) {
+            console.error('erro ao inicializar página de produtos:', error);
+            if (container) container.innerHTML = `<p style="color: red;">${error.message}</p>`;
+            showNotification('erro ao carregar produtos.', 'error');
+        }
+    }
 
-    container.addEventListener('click', function (event) {
-        const target = event.target;
-        const card = target.closest('.products-card');
-        if (!card) return;
+    // listener principal no container de produtos (delegação)
+    if (container) {
+        container.addEventListener('click', function (event) {
+            const card = event.target.closest('.products-card');
+            if (!card) return; // ignora cliques fora de um card
 
-        const productId = card.dataset.productId;
-        const addToCartBtn = target.closest('.add-to-cart-btn');
-        const editBtn = target.closest('.edit-btn');
+            const productId = card.dataset.productId;
+            const addToCartBtn = event.target.closest('.add-to-cart-btn');
+            const editBtn = event.target.closest('.edit-btn');
 
-        if (addToCartBtn) {
-            event.stopPropagation();
-            addToCart(productId);
-        } else if (editBtn) {
-            event.stopPropagation();
-            showEditModal(productId);
-        } else {
-            showDetailsModal(productId);
-        }
-    });
+            if (addToCartBtn) {
+                event.stopPropagation(); // previne que o clique no botão abra a página de detalhes
+                addToCart(productId);
+            } else if (editBtn) {
+                event.stopPropagation(); // previne que o clique no botão abra a página de detalhes
+                showEditModal(productId);
+            } else {
+                // redireciona para a página de detalhes do produto
+                window.location.href = `/produto-detalhe.html?id=${productId}`;
+            }
+        });
+    }
 
-    detailsModal.addEventListener('click', function (event) {
-        const target = event.target;
-        if (target.classList.contains('close-modal') || target === detailsModal) {
-            hideDetailsModal();
-        }
-        if (target.closest('.add-to-cart-btn-modal')) {
-            const productId = target.closest('.add-to-cart-btn-modal').dataset.productId;
-            addToCart(productId);
-            hideDetailsModal();
-        }
-    });
+    // listener para o formulário de edição de produto
+    if (editForm) {
+        editForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const id = editForm.querySelector('#edit-product-id').value;
+            const submitButton = editForm.querySelector('button[type="submit"]');
 
-    editForm.addEventListener('submit', async function (event) {
-        event.preventDefault();
-        const id = document.getElementById('edit-product-id').value;
-        const updatedProduct = {
-            title: document.getElementById('edit-title').value,
-            description: document.getElementById('edit-description').value,
-            price: parseFloat(document.getElementById('edit-price').value),
-            image_url: document.getElementById('edit-image_url').value
-        };
+            const updatedProduct = {
+                title: editForm.querySelector('#edit-title').value,
+                description: editForm.querySelector('#edit-description').value,
+                price: parseFloat(editForm.querySelector('#edit-price').value),
+                image_url: editForm.querySelector('#edit-image_url').value
+            };
 
-        try {
-            const response = await fetchWithAuth(`http://localhost:3030/api/products/${id}`, {
-                method: 'PUT',
-                body: JSON.stringify(updatedProduct)
-            });
+            submitButton.disabled = true;
+            submitButton.textContent = 'salvando...';
 
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.message || 'Falha ao atualizar o produto.');
-            }
+            try {
+                // envia dados atualizados via PUT autenticado
+                const response = await fetchWithAuth(`http://localhost:3030/api/products/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(updatedProduct)
+                });
 
-            showNotification(data.message || 'Produto atualizado com sucesso!', 'success');
-            
-            hideEditModal();
-            init();
-        } catch (error) {
-            console.error('Erro ao atualizar produto:', error);
-            showNotification(error.message, 'error');
-        }
-    });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'falha ao atualizar o produto.');
+                }
 
-    document.getElementById('cancel-edit-btn').addEventListener('click', hideEditModal);
+                showNotification(data.message || 'produto atualizado com sucesso!', 'success');
+                hideEditModal(); // fecha modal
+                initializePage(); // recarrega a lista de produtos
 
-    init();
+            } catch (error) {
+                console.error('erro ao atualizar produto:', error);
+                showNotification(error.message, 'error');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'salvar alterações';
+            }
+        });
+
+        // listener para o botão de cancelar no modal de edição
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+        if (cancelEditBtn) {
+            cancelEditBtn.addEventListener('click', hideEditModal);
+        }
+         // Adiciona listener para fechar clicando fora do modal-content
+         if (editModal) {
+            editModal.addEventListener('click', (e) => {
+                if (e.target === editModal) { // Verifica se o clique foi no overlay
+                    hideEditModal();
+                }
+            });
+        }
+    }
+
+    // listener para o menu mobile
+    if (menuToggle && menuNav) {
+        menuToggle.addEventListener('click', () => {
+            menuNav.classList.toggle('open');
+        });
+    }
+
+    // inicializa o sistema de notificações e a página
+    setupToastListener();
+    initializePage();
 });

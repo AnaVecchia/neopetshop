@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // seletores de elementos do DOM
     const profileImg = document.getElementById('profile-img');
     const usernameInput = document.getElementById('username');
     const emailInput = document.getElementById('email');
@@ -7,9 +8,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const saveBtn = document.getElementById('save-btn');
     const cancelBtn = document.getElementById('cancel-btn');
     const profileForm = document.getElementById('profile-form');
+    const menuToggle = document.getElementById('menu-toggle'); // menu mobile
+    const mainMenu = document.getElementById('main-menu');       // menu mobile
 
-    let originalUserData = {};
+    // verifica se todos os elementos essenciais do formulário existem
+    if (!profileImg || !usernameInput || !emailInput || !phoneInput || !editBtn || !saveBtn || !cancelBtn || !profileForm) {
+        console.error('erro: um ou mais elementos do formulário de perfil não foram encontrados.');
+        return; // interrompe a execução se elementos cruciais faltarem
+    }
 
+    let originalUserData = {}; // armazena os dados originais do usuário para cancelamento
+
+    // função auxiliar para requisições autenticadas (anexa token JWT)
     async function fetchWithAuth(url, options = {}) {
         const token = localStorage.getItem('token');
         const headers = {
@@ -22,67 +32,81 @@ document.addEventListener('DOMContentLoaded', function () {
         return fetch(url, { ...options, headers });
     }
 
+    // preenche os campos do formulário com os dados do usuário do localStorage
     function populateProfileData() {
         const token = localStorage.getItem('token');
         const userDataString = localStorage.getItem('user');
 
+        // redireciona para login se não houver sessão ativa
         if (!token || !userDataString) {
-            alert('Sessão inválida ou expirada. Por favor, faça o login novamente.');
+            alert('sessão inválida ou expirada. por favor, faça o login novamente.');
             window.location.href = '/index.html';
             return;
         }
 
         try {
             const user = JSON.parse(userDataString);
-            originalUserData = { ...user };
+            originalUserData = { ...user }; // clona os dados para restauração
 
-            profileImg.src = user.profile_image_url || 'https://via.placeholder.com/150';
-            usernameInput.value = user.username;
-            emailInput.value = user.email;
-            phoneInput.value = user.phone;
+            // preenche os campos
+            profileImg.src = user.profile_image_url || 'https://via.placeholder.com/150'; // usa placeholder se não houver imagem
+            profileImg.alt = `foto de perfil de ${user.username || 'usuário'}`;
+            usernameInput.value = user.username || '';
+            emailInput.value = user.email || '';
+            phoneInput.value = user.phone || '';
         } catch (e) {
-            console.error('Erro ao processar dados do usuário:', e);
-            alert('Dados de usuário corrompidos. Por favor, faça o login novamente.');
-            localStorage.clear();
-            window.location.href = '/index.html';
+            // lida com dados corrompidos no localStorage
+            console.error('erro ao processar dados do usuário do localStorage:', e);
+            alert('dados de usuário corrompidos. por favor, faça o login novamente.');
+            localStorage.clear(); // limpa localStorage corrompido
+            window.location.href = '/index.html'; // redireciona para login
         }
     }
 
+    // alterna a UI entre modo de visualização e modo de edição
     function toggleEditMode(isEditing) {
+        // habilita/desabilita campos editáveis
         usernameInput.disabled = !isEditing;
-        emailInput.disabled = !isEditing; 
+        emailInput.disabled = !isEditing;
         phoneInput.disabled = !isEditing;
 
+        // mostra/esconde botões de ação
         editBtn.hidden = isEditing;
         saveBtn.hidden = !isEditing;
         cancelBtn.hidden = !isEditing;
     }
 
+    // --- event listeners ---
+
+    // botão editar: ativa o modo de edição
     editBtn.addEventListener('click', () => {
         toggleEditMode(true);
     });
 
+    // botão cancelar: restaura dados originais e desativa edição
     cancelBtn.addEventListener('click', () => {
-        // Restaura todos os campos editáveis
-        usernameInput.value = originalUserData.username;
-        emailInput.value = originalUserData.email; // <-- ALTERAÇÃO AQUI (Restaura o email)
-        phoneInput.value = originalUserData.phone;
+        usernameInput.value = originalUserData.username || '';
+        emailInput.value = originalUserData.email || '';
+        phoneInput.value = originalUserData.phone || '';
         toggleEditMode(false);
     });
 
+    // submissão do formulário: envia dados atualizados para a API
     profileForm.addEventListener('submit', async function (event) {
-        event.preventDefault();
+        event.preventDefault(); // previne recarregamento
 
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Salvando...';
+        saveBtn.disabled = true; // desabilita botão durante envio
+        saveBtn.textContent = 'salvando...';
 
+        // coleta dados atualizados dos inputs
         const updatedData = {
             username: usernameInput.value,
-            email: emailInput.value, // <-- ALTERAÇÃO AQUI (Inclui email no envio)
+            email: emailInput.value,
             phone: phoneInput.value,
         };
 
         try {
+            // envia requisição PUT autenticada
             const response = await fetchWithAuth(`http://localhost:3030/api/users/${originalUserData.id}`, {
                 method: 'PUT',
                 body: JSON.stringify(updatedData)
@@ -90,40 +114,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const result = await response.json();
 
+            // verifica se a API retornou erro
             if (!response.ok) {
-                throw new Error(result.message || 'Falha ao atualizar o perfil.');
+                throw new Error(result.message || 'falha ao atualizar o perfil.');
             }
 
-            // Atualiza o localStorage com os novos dados do usuário retornados pela API
-            localStorage.setItem('user', JSON.stringify(result.user));
-            // Atualiza a variável local de dados originais
-            originalUserData = { ...result.user };
-
-            alert(result.message || 'Perfil atualizado com sucesso!');
-            toggleEditMode(false);
+            // sucesso: atualiza localStorage e UI
+            localStorage.setItem('user', JSON.stringify(result.user)); // atualiza dados locais
+            originalUserData = { ...result.user }; // atualiza backup dos dados
+            alert(result.message || 'perfil atualizado com sucesso!');
+            toggleEditMode(false); // retorna ao modo de visualização
 
         } catch (error) {
-            alert(`Erro: ${error.message}`);
-            // Restaura o formulário para o estado original em caso de erro
-            usernameInput.value = originalUserData.username;
-            emailInput.value = originalUserData.email; // <-- ALTERAÇÃO AQUI (Restaura email no erro)
-            phoneInput.value = originalUserData.phone;
+            // falha: exibe erro e restaura campos para valores originais
+            alert(`erro: ${error.message}`);
+            usernameInput.value = originalUserData.username || '';
+            emailInput.value = originalUserData.email || '';
+            phoneInput.value = originalUserData.phone || '';
         } finally {
+            // reabilita o botão, ocorrendo sucesso ou falha
             saveBtn.disabled = false;
-            saveBtn.textContent = 'Salvar Alterações';
+            saveBtn.textContent = 'salvar alterações';
         }
     });
 
-    // Carrega os dados do perfil assim que a página é carregada
-    populateProfileData();
-
-    // --- CÓDIGO PARA O MENU MOBILE RESPONSIVO ---
-    const menuToggle = document.getElementById('menu-toggle');
-    const mainMenu = document.getElementById('main-menu');
-
+    // listener para o menu mobile (se existir)
     if (menuToggle && mainMenu) {
         menuToggle.addEventListener('click', () => {
             mainMenu.classList.toggle('menu-open');
         });
+    } else {
+        // console.warn('elementos do menu mobile (menu-toggle ou main-menu) não encontrados.');
     }
+
+    // carrega os dados do perfil ao iniciar a página
+    populateProfileData();
 });

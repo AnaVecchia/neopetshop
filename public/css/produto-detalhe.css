@@ -1,0 +1,86 @@
+.product-detail-container {
+    display: flex;
+    gap: 30px;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.product-image-section img {
+    max-width: 400px;
+    height: auto;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+
+.product-info-section {
+    flex: 1;
+}
+
+.product-price {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: var(--orange-color); /* Usando variável do seu header.css */
+    margin: 20px 0;
+}
+
+#add-to-cart-detail-btn {
+    padding: 15px 30px;
+    font-size: 1.1em;
+}
+
+.back-link {
+    display: block;
+    margin-top: 20px;
+    color: var(--brown-color);
+    text-decoration: none;
+}
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* Em public/css/produto-detalhe.css */
+
+.navigation-buttons {
+    margin-top: 30px; /* Espaço acima dos botões */
+    display: flex;
+    gap: 15px; /* Espaço entre os botões */
+    flex-wrap: wrap; /* Permite que os botões quebrem linha em telas menores */
+}
+
+/* Estilos básicos para botões (ajuste cores conforme seu design) */
+.btn {
+    display: inline-block; /* Comportamento de botão */
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    border: none;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-primary {
+    background-color: #007bff; /* Azul padrão */
+    color: white;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d; /* Cinza */
+    color: white;
+}
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn-tertiary {
+    background-color: #f8f9fa; /* Cinza claro/branco */
+    color: #343a40; /* Texto escuro */
+    border: 1px solid #dee2e6; /* Borda sutil */
+}
+.btn-tertiary:hover {
+    background-color: #e2e6ea;
+}

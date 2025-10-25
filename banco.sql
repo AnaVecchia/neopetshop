@@ -7,7 +7,8 @@ CREATE TABLE users (
     username VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     profile_image_url VARCHAR(255) NULL,
-    phone VARCHAR(255)
+    role VARCHAR(10) NOT NULL DEFAULT 'cliente',
+    phone VARCHAR(255) 
 );
 
 CREATE TABLE products (
@@ -17,14 +18,6 @@ CREATE TABLE products (
     description VARCHAR(255) NOT NULL,
     price DOUBLE NOT NULL
 );
-
-select * from users;
-
-select * from products;
-
-DELETE FROM products WHERE id = 2;
-
-DROP TABLE usuarios;
 
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -46,8 +39,3 @@ CREATE TABLE order_items (
 );
 
 ALTER TABLE users ADD COLUMN role VARCHAR(10) NOT NULL DEFAULT 'cliente';
-
-DROP table order_items;
-DROP table orders;
-DROP table users;
-DROP table products;
