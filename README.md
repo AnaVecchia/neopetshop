@@ -98,7 +98,7 @@ BANCO DE DADOS:
   - `swagger-autogen` (Geração automática de especificação OpenAPI)
   - `swagger-ui-express` (Interface web interativa para documentação Swagger)
 - **Controle de Versão:**
-  - Git & GitHub (ou similar)
+  - Git & GitHub
 
 ---
 
