@@ -38,4 +38,6 @@ CREATE TABLE order_items (
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
+
+
 ALTER TABLE users ADD COLUMN role VARCHAR(10) NOT NULL DEFAULT 'cliente';

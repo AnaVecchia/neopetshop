@@ -101,7 +101,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* Coluna da Direita (Formulário) */
 .profile-main {
     flex-grow: 1;
     padding: 40px;
@@ -197,7 +196,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* RESPONSIVIDADE TOTAL */
+/* RESPONSIVIDADE*/
 @media (max-width: 768px) {
     .profile-container {
         flex-direction: column;
@@ -226,7 +225,6 @@ body {
         display: block; 
     }
 
-    /* Esconde o menu de navegação principal (formato desktop) */
     .main-nav .menu-area {
         display: none;
         flex-direction: column;

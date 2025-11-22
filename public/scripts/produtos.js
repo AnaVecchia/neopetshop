@@ -7,6 +7,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuToggle = document.getElementById('menu-toggle');     // menu mobile
     const menuNav = document.getElementById('menu-nav');           // menu mobile
 
+    // --- verificação de admin e adição do botão de cadastro ---
+    const userDataString = localStorage.getItem('user'); // pega dados do usuário do localStorage
+
+    if (userDataString) {
+        try {
+            const user = JSON.parse(userDataString);
+
+            // verifica se o usuário é admin pela 'role' (mais seguro que verificar email)
+            if (user && user.role === 'admin') {
+                const adminButton = document.createElement('a');
+                adminButton.href = '/cadastro-produtos.html'; // usa caminho relativo à raiz
+                adminButton.textContent = '☑ Cadastrar Produtos';
+                adminButton.classList.add('btn-admin'); // classe para estilização
+
+                // adiciona o botão ao container do cabeçalho
+                const headerContainer = document.querySelector('.header-area'); // container específico no header
+                if (headerContainer) {
+                    headerContainer.appendChild(adminButton);
+                } else {
+                    console.warn('container do cabeçalho (.header-area) não encontrado para adicionar o botão de admin.');
+                }
+            }
+        } catch (e) {
+            console.error('erro ao processar dados do usuário do localStorage:', e);
+            // opcionalmente, limpar dados corrompidos: localStorage.removeItem('user');
+        }
+    }
+
+
     // verifica se elementos essenciais existem
     if (!container || !editModal || !editForm) {
         console.error('erro: elementos essenciais da página de produtos ou modal de edição não encontrados.');
@@ -197,8 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('cart', JSON.stringify(cart)); // salva carrinho
         showNotification(`"${productToAdd.title || 'produto'}" adicionado ao carrinho!`, 'cart'); // notifica usuário
     }
-
-    // --- lógica dos modais (apenas edição) ---
 
     // preenche e exibe o modal de edição
     function showEditModal(productId) {

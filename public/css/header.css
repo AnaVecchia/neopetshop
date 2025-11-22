@@ -441,7 +441,9 @@ footer {
 .fotter-logo img {
     margin: 0 auto;
     width: 200px; 
-    height: auto; 
+    height: 200px; /* altura deve ser igual à largura para um círculo perfeito */
+    border-radius: 50%; /* torna a imagem redonda */
+    object-fit: cover; /* garante que a imagem preencha o espaço sem distorcer */
 }
 
 .address-area {

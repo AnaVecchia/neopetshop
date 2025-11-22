@@ -21,3 +21,11 @@
 * Front
     -Opção 1: Fazer o Express renderizar as páginas HTML da pasta view.
     -Opção 2: Separar o frontend e o backend em projetos diferentes (ou colocar o front todo na pasta public
+
+role comum:
+ana@usuario.com
+Ana123
+
+role admin:
+anajulia@admin.com
+Ana123

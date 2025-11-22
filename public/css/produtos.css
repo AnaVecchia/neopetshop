@@ -533,7 +533,9 @@ header .menu-area {
     font-weight: 600;
     transition: all 0.3s ease;
 }
-
+.btn-admin{
+    color: white;
+}
 .btn-primary {
     background-color: var(--accent-orange);
     color: white;

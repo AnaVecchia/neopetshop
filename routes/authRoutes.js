@@ -1,3 +1,5 @@
+// /routes/authRoutes.js
+
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -7,7 +9,7 @@ require('dotenv').config(); // garante acesso a process.env
 const router = express.Router();
 const saltRounds = 10; // custo do hashing bcrypt
 
-// POST /api/auth/login - autentica um usuário
+// post /api/auth/login - autentica um usuário
 /*
     #swagger.path = '/auth/login'
     #swagger.tags = ['Auth']
@@ -25,14 +27,13 @@ const saltRounds = 10; // custo do hashing bcrypt
             success: true,
             message: 'login bem-sucedido!',
             token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-            user: { $ref: "#/definitions/UserBase" } // refinar: definir UserBase em swagger.js
+            user: { $ref: "#/definitions/UserBase" }
         }
     }
     #swagger.responses[400] = { description: 'email ou senha não fornecidos.', schema: { $ref: "#/definitions/ErrorResponse" } }
     #swagger.responses[401] = { description: 'email ou senha inválidos.', schema: { $ref: "#/definitions/ErrorResponse" } }
     #swagger.responses[500] = { description: 'erro interno do servidor.', schema: { $ref: "#/definitions/ErrorResponse" } }
 */
-
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -43,7 +44,7 @@ router.post('/login', async (req, res) => {
 
     try {
         // busca usuário pelo email no banco
-        const query = 'SELECT id, email, password, role FROM users WHERE email = ?'; // busca apenas campos necessários
+        const query = 'SELECT id, email, username, password, phone, profile_image_url, role FROM users WHERE email = ?'; // busca mais campos para retornar no user
         const [users] = await connection.query(query, [email]);
 
         // verifica se o usuário existe
@@ -86,12 +87,12 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// POST /api/auth/cadastro - registra um novo usuário
+// post /api/auth/cadastro - registra um novo usuário
 /*
     #swagger.path = '/auth/cadastro'
     #swagger.tags = ['Auth']
     #swagger.summary = 'registra um novo usuário.'
-    #swagger.description = 'recebe dados do novo usuário (incluindo url de imagem opcional), gera hash da senha e salva no banco. verifica duplicidade de email.'
+    #swagger.description = 'recebe dados do novo usuário, valida senha (min 6 chars, 1 maiúscula), gera hash e salva. verifica duplicidade de email.'
     #swagger.parameters['obj'] = {
         in: 'body',
         description: 'dados para cadastro do novo usuário.',
@@ -102,7 +103,7 @@ router.post('/login', async (req, res) => {
         description: 'usuário cadastrado com sucesso.',
         schema: { message: 'usuário cadastrado com sucesso!' }
     }
-    #swagger.responses[400] = { description: 'campos obrigatórios ausentes ou email inválido.', schema: { $ref: "#/definitions/ErrorResponse" } }
+    #swagger.responses[400] = { description: 'dados inválidos (campos obrigatórios, email inválido, senha fraca).', schema: { $ref: "#/definitions/ErrorResponse" } }
     #swagger.responses[409] = { description: 'o email informado já está em uso.', schema: { $ref: "#/definitions/ErrorResponse" } }
     #swagger.responses[500] = { description: 'erro interno ao cadastrar usuário.', schema: { $ref: "#/definitions/ErrorResponse" } }
 */
@@ -113,11 +114,19 @@ router.post('/cadastro', async (req, res) => {
     if (!email || !username || !password || !phone) {
         return res.status(400).json({ message: 'todos os campos são obrigatórios.' });
     }
-     // validação básica de formato de email (pode ser aprimorada)
+     // validação básica de formato de email
      if (!/\S+@\S+\.\S+/.test(email)) {
         return res.status(400).json({ message: 'formato de email inválido.' });
      }
 
+    // --- validação de senha ---
+    if (password.length < 6) {
+        return res.status(400).json({ message: 'a senha deve ter no mínimo 6 caracteres.' });
+    }
+    if (!/[A-Z]/.test(password)) {
+        return res.status(400).json({ message: 'a senha deve conter pelo menos uma letra maiúscula.' });
+    }
+    // --- fim da validação de senha ---
 
     try {
         // gera o hash da senha antes de salvar
@@ -125,7 +134,8 @@ router.post('/cadastro', async (req, res) => {
 
         // insere o novo usuário no banco de dados
         const query = 'INSERT INTO users (email, username, password, phone, profile_image_url) VALUES (?, ?, ?, ?, ?)';
-        const values = [email, username, hashedPassword, phone, profile_image_url];
+        // usa profile_image_url ou null se não for fornecido
+        const values = [email, username, hashedPassword, phone, profile_image_url || null];
         await connection.query(query, values);
 
         // envia resposta de sucesso
