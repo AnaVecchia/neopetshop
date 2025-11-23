@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             // busca os pedidos usando a função autenticada
-            const response = await fetchWithAuth('http://localhost:3030/api/orders/user');
+            const response = await fetchWithAuth('/api/orders/user');
             const data = await response.json();
 
             // verifica se a API retornou erro

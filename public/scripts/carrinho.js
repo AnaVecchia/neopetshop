@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             try {
                 // envia o pedido para a API
-                const response = await fetchWithAuth('http://localhost:3030/api/orders', {
+                const response = await fetchWithAuth('/api/orders', {
                     method: 'POST',
                     body: JSON.stringify({ cart: localCart })
                 });

@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // busca a lista de produtos da API
     async function fetchProducts() {
         // não precisa de autenticação para listar produtos
-        const response = await fetch('http://localhost:3030/api/products');
+        const response = await fetch('/api/products');
         if (!response.ok) {
             let errorMsg = 'falha ao buscar os produtos da API.';
             try {
@@ -304,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // envia dados atualizados via PUT autenticado
-                const response = await fetchWithAuth(`http://localhost:3030/api/products/${id}`, {
+                const response = await fetchWithAuth(`/api/products/${id}`, {
                     method: 'PUT',
                     body: JSON.stringify(updatedProduct)
                 });

@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             // envia dados para a API usando POST autenticado
-            const response = await fetchWithAuth('http://localhost:3030/api/products', {
+            const response = await fetchWithAuth('/api/products', {
                 method: 'POST',
                 body: JSON.stringify(productData)
             });

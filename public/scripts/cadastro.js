@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
             };
 
             // envia dados para o endpoint de cadastro
-            const response = await fetch('http://localhost:3030/api/auth/cadastro', {
+            const response = await fetch('/api/auth/cadastro', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

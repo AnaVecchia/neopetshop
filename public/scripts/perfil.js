@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // envia requisição PUT autenticada
 
-            const response = await fetchWithAuth(`http://localhost:3030/api/users/${originalUserData.id}`, {
+            const response = await fetchWithAuth(`/api/users/${originalUserData.id}`, {
 
                 method: 'PUT',
 

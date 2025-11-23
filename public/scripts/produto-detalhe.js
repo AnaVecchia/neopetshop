@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // busca os dados do produto na API pelo ID
     async function fetchProductDetails() {
         try {
-            const response = await fetch(`http://localhost:3030/api/products/${productId}`);
+            const response = await fetch(`/api/products/${productId}`);
 
             // trata caso de produto não encontrado (404)
             if (response.status === 404) {
