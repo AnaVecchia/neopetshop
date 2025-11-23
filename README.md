@@ -98,7 +98,7 @@ BANCO DE DADOS:
   - `swagger-autogen` (Geração automática de especificação OpenAPI)
   - `swagger-ui-express` (Interface web interativa para documentação Swagger)
 - **Controle de Versão:**
-  - Git & GitHub (ou similar)
+  - Git & GitHub
 
 ---
 
@@ -289,8 +289,7 @@ Como trabalhos futuros, sugere-se:
 
 Desenvolvido por **Ana Julia Della Vecchia** como requisito parcial para obtenção do título de Tecnólogo em Análise e Desenvolvimento de Sistemas.
 
-  - **GitHub:** `[Link para o seu GitHub]`
-  - **LinkedIn:** `[Link para o seu LinkedIn]`
+  - **GitHub:** `https://github.com/anavecchia`
 
 -----
 
